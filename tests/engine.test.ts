@@ -207,11 +207,19 @@ test("ui copy renders for every sample user (no unfilled placeholders)", () => {
   assert.match(uiText(L.cfg, fresh(rafeeq).ctx).details_message, /5 Nov 2002/);
 });
 
-test("hand-off link carries token + version, never personal data", () => {
-  const url = handoffUrl(L, rafeeq.token);
-  assert.match(url, /^https:\/\//);
-  assert.match(url, /utm_term=t_demo_shaadi_01/);
+test("hand-off link: app links go out exactly as given; web links carry token + version; never personal data", () => {
+  assert.equal(handoffUrl(L, rafeeq.token), L.cfg.handoff.deeplink_no_balance, "astrolokal://Home stays exactly that");
+  const c = clone(); c.handoff.deeplink_no_balance = "https://x.test/app";
+  const url = handoffUrl({ ...L, cfg: c }, rafeeq.token);
+  assert.match(url, /^https:\/\/x\.test\/app\?.*utm_term=t_demo_shaadi_01/);
   assert.doesNotMatch(url, /Rohan|2002|Guntur/);
+});
+
+test("an app link needs an https fallback for users without the app", () => {
+  const c = clone(); delete c.handoff.fallback_url;
+  assert.match(validateConfig(c, L.template).join(), /fallback_url/);
+  const bad = clone(); bad.handoff.deeplink_no_balance = "Home";
+  assert.match(validateConfig(bad, L.template).join(), /app link/);
 });
 
 
@@ -323,14 +331,16 @@ test("message pacing is validated", () => {
 });
 
 test("cohorts: each changes only what's different; the CTA link follows the wallet balance", () => {
-  const low = forCohort(L, "low_balance");
-  assert.notEqual(low.cfg.ui.card_offer, L.cfg.ui.card_offer);
+  const withOffer = clone(); withOffer.cohorts = { ...withOffer.cohorts, rc2: { ui: { card_offer: "Bucket offer" } } };
+  const LO = { ...L, cfg: withOffer };
+  const low = forCohort(LO, "rc2");
+  assert.equal(low.cfg.ui.card_offer, "Bucket offer");
   assert.equal(low.cfg.ui.cta_label, L.cfg.ui.cta_label, "untouched keys come from the main config");
   assert.equal(forCohort(L, "lapsed"), L, "an empty cohort is the main config");
   assert.equal(cohortOf(L.cfg, { cohort: "nonsense" }), L.cfg.default_cohort);
   const c = clone(); c.handoff.deeplink_with_balance = "https://x.test/chat"; c.handoff.deeplink_no_balance = "https://x.test/recharge";
   const LL = { ...L, cfg: c };
-  assert.match(handoffUrl(LL, "tok", { wallet_balance: 50, cohort: "low_balance" }), /^https:\/\/x\.test\/chat\?.*cohort=low_balance.*bal=yes/);
+  assert.match(handoffUrl(LL, "tok", { wallet_balance: 50, cohort: "rc2" }), /^https:\/\/x\.test\/chat\?.*cohort=rc2.*bal=yes/);
   assert.match(handoffUrl(LL, "tok", { wallet_balance: 0 }), /^https:\/\/x\.test\/recharge\?.*cohort=lapsed.*bal=no/);
 });
 

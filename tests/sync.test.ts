@@ -13,7 +13,7 @@ const src: SourceConfig = {
     user_id: "user_id", dob: "dob", tob: "tob", pob: "pob", name: "name", gender: "gender", cohort: "cohort",
     token: "link_token", holdout: "holdout", wallet_balance: "wallet_balance",
   },
-  cohort_map: { lapsed_15d: "lapsed", zero_bal: "zero_balance" },
+  cohort_map: { lapsed_15d: "lapsed", zero_bal: "rc2" },
 };
 const opts = { secret: "s".repeat(20), day: "2026-09-30", now: new Date("2026-09-25") };
 const row = (o: Record<string, unknown>) => ({
@@ -62,7 +62,7 @@ test("holdout, bad rows and unmapped journeys are reported, not synced", () => {
   assert.equal(users.filter((u) => u.user_id === "4").length, 1, "the same user listed twice with the same details: one chat");
   assert.deepEqual(report.unmappedJourneys, ["new_journey"]);
   assert.equal(users.find((u) => u.journey === "new_journey")!.user.cohort, L.cfg.default_cohort);
-  assert.equal(users.find((u) => u.journey === "zero_bal")!.user.cohort, "zero_balance");
+  assert.equal(users.find((u) => u.journey === "zero_bal")!.user.cohort, "rc2");
 });
 
 test("dates, times and places in the formats databases use", () => {

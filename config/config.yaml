@@ -145,14 +145,16 @@ guardrails:
     - '\b(ai ho|bot ho|real ho|insaan ho)\b'
 
 # Where the CTA sends the user.
-# v1: one generic deep link that opens the Astrolokal app on its home page → paste it into BOTH lines below.
-# Later: booking-initiation deep links (with balance → straight into a chat; no balance → recharge first), picked per user
-# by wallet_balance. Until the link is pasted, both are the Play Store stand-in and `npm run prodcheck` shows ✗.
+# v1: the app's home page for everyone. Later: booking-initiation deep links (with balance → straight into a chat;
+# no balance → recharge first), picked per user by wallet_balance.
 handoff:
-  deeplink_with_balance: "https://play.google.com/store/apps/details?id=com.astrolokal.astrology"   # v1: the generic app link (same as below)
-  deeplink_no_balance: "https://play.google.com/store/apps/details?id=com.astrolokal.astrology"     # v1: the generic app link (same as above)
+  deeplink_with_balance: "astrolokal://Home"   # v1: the app's home page (same as below)
+  deeplink_no_balance: "astrolokal://Home"     # v1: the app's home page (same as above)
+  # If the app doesn't open within 1.5 s (not installed), the button goes here instead:
+  fallback_url: "https://play.google.com/store/apps/details?id=com.astrolokal.astrology"
   # Attribution on every tap: {token} {prompt_version} {cohort} {arm} {balance} (token is opaque, never a phone number)
   utm: "utm_source=wati&utm_campaign=ai_free_chat&utm_content={prompt_version}&utm_term={token}&cohort={cohort}&arm={arm}&bal={balance}"
+  utm_on_app_links: false   # true only if the app accepts astrolokal://Home?utm_… (ask tech); https links always carry it
 
 # What the chat uses. Switch off per cohort to test what actually moves the tap rate.
 assets:
@@ -163,13 +165,7 @@ assets:
 # (any section below except experiment). Empty = the main config as is. Bump prompt_version when you edit one.
 default_cohort: lapsed
 cohorts:
-  lapsed: {}                  # paid before, not recharged recently: the main flow
-  low_balance:                # some balance left: get them to use it, then top up
-    ui:
-      card_offer: "Your balance is waiting · 100% cashback on your next recharge"   # TODO: confirm the offer with Tejaswi
-  zero_balance:               # no balance: give value first, then the first recharge
-    ui:
-      card_offer: "100% cashback on your first recharge"
+  lapsed: {}                  # anyone whose journey isn't listed below
   # Recharge-count buckets from the daily retargeting query (rc_bucket). Same experience for now; each gets its own
   # row in /admin, so we can see which bucket converts. Add overrides here to give a bucket its own hook or offer.
   rc1: {}

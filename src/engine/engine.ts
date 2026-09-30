@@ -62,7 +62,7 @@ export type Config = {
   monthly_line: string;
   topics: Record<string, string[]>;
   guardrails: { banned: Pattern[]; crisis: string[]; injection: string[]; ai_question: string[] };
-  handoff: { deeplink_with_balance: string; deeplink_no_balance: string; utm: string };
+  handoff: { deeplink_with_balance: string; deeplink_no_balance: string; fallback_url?: string; utm: string; utm_on_app_links?: boolean };
   assets?: { kundli: boolean; last_chat: boolean };
   default_cohort?: string;
   cohorts?: Record<string, Record<string, unknown>>;
@@ -237,8 +237,11 @@ export function validateConfig(cfg: Config, template: string): string[] {
   for (const k of REQUIRED_UI) need(typeof cfg.ui?.[k] === "string", `ui.${k} is missing`);
   for (const [k, text] of Object.entries(cfg.ui ?? {})) for (const v of placeholders(text))
     need(UI_VARS.includes(v), `ui.${k} uses unknown {${v}}`);
+  // An app link (astrolokal://…) or a web link (https://…). App links need an https fallback for users without the app.
   for (const k of ["deeplink_with_balance", "deeplink_no_balance"] as const)
-    need(/^https:\/\//.test(cfg.handoff?.[k] ?? ""), `handoff.${k} must start with https://`);
+    need(/^(https:\/\/|[a-z][a-z0-9+.-]*:\/\/)\S+$/i.test(cfg.handoff?.[k] ?? ""), `handoff.${k} must be an app link (astrolokal://…) or start with https://`);
+  const appLink = [cfg.handoff?.deeplink_with_balance, cfg.handoff?.deeplink_no_balance].some((u) => u && !/^https:\/\//.test(u));
+  need(!appLink || /^https:\/\//.test(cfg.handoff?.fallback_url ?? ""), "handoff.fallback_url (https://, e.g. the Play Store page) is needed with an app link");
   if (cfg.source) {
     const src = cfg.source;
     need(Number.isInteger(src.redash_query_id) && src.redash_query_id > 0, "source.redash_query_id must be the Redash query number");
@@ -541,12 +544,19 @@ export function cardText(cfg: Config, ctx: Context, topic: string | null): strin
 export function handoffUrl(L: Loaded, token: string, user?: Pick<UserInput, "cohort" | "wallet_balance">): string {
   const hasBalance = Number(user?.wallet_balance ?? 0) > 0;
   const base = hasBalance ? L.cfg.handoff.deeplink_with_balance : L.cfg.handoff.deeplink_no_balance;
+  // App links go out exactly as given unless the app is known to accept extra parameters (taps are tracked by our events).
+  if (!/^https:\/\//.test(base) && !L.cfg.handoff.utm_on_app_links) return base;
   const utm = render(L.cfg.handoff.utm, {
     token: encodeURIComponent(token), prompt_version: encodeURIComponent(L.cfg.experiment.prompt_version),
     cohort: encodeURIComponent(cohortOf(L.cfg, user ?? {})), arm: encodeURIComponent(assignArm(L.cfg, token).id),
     balance: hasBalance ? "yes" : "no",
   });
   return base + (base.includes("?") ? "&" : "?") + utm;
+}
+
+/** Where to send a user whose phone didn't open the app link (app not installed). "" for web links. */
+export function fallbackUrl(L: Loaded): string {
+  return L.cfg.handoff.fallback_url ?? "";
 }
 
 // ── Routing a user message ───────────────────────────────────────────────────

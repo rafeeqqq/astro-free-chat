@@ -7,7 +7,7 @@
 // until the closing line at closing_at_seconds_left. Nothing is ever sent after the chat has ended.
 
 import {
-  load, buildContext, newSession, openingBubbles, chartIntro, chartLine, runTurn, runNudge, bubblesFor, forCohort, cohortOf, uiText, cardText, handoffUrl, MAX_USER_CHARS,
+  load, buildContext, newSession, openingBubbles, chartIntro, chartLine, runTurn, runNudge, bubblesFor, forCohort, cohortOf, uiText, cardText, handoffUrl, fallbackUrl, MAX_USER_CHARS,
 } from "../engine/engine.ts";
 import type { Loaded, Context, ChatMessage, TurnLog } from "../engine/engine.ts";
 import { statSync } from "node:fs";
@@ -68,6 +68,7 @@ export type View = {
   handoffAt: number;
   ctaCountdown: number;        // seconds the button counts down once the card appears
   handoffUrl: string;
+  fallbackUrl: string;         // app link didn't open (app not installed) → this, e.g. the Play Store
   closed: boolean;
   crisis: boolean;
   chart: { moonSign: string; mahadasha: string; antardasha: string; kundli: KundliView | null } | null;
@@ -100,6 +101,7 @@ function view(L: Loaded, ctx: Context | null, s: Session | null, token: string, 
     handoffAt: L.cfg.timing.handoff_card_at_seconds_left,
     ctaCountdown: L.cfg.timing.cta_countdown_seconds ?? 5,
     handoffUrl: handoffUrl(L, token, ctx?.user),
+    fallbackUrl: fallbackUrl(L),
     promptVersion: L.cfg.experiment.prompt_version,
     pacing: L.cfg.pacing,
     canRestart: isDev(),

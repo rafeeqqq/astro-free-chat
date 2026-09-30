@@ -27,7 +27,7 @@ async function main() {
       console.warn("⚠ GEMINI_MODEL in .env.local is not a model id (is the key pasted there by mistake?). It is ignored; clear that line.");
     for (const k of ["deeplink_with_balance", "deeplink_no_balance"] as const)
       if (/REPLACE_ME|play\.google\.com/.test(L.cfg.handoff[k]))
-        console.warn(`⚠ handoff.${k} is the Play Store stand-in. Swap in Yatharth's deep link before the pilot send.`);
+        console.warn(`⚠ handoff.${k} is the Play Store stand-in, not the app link.`);
     console.log(`cohorts: ${Object.keys(L.cfg.cohorts ?? {}).join(", ") || "none"} (default ${L.cfg.default_cohort ?? "–"})`);
     return;
   }
@@ -46,7 +46,7 @@ async function main() {
       [L.cfg.source?.links?.require_signature === true, "source.links.require_signature is on (otherwise a user_id in a link can be changed by hand)"],
       [!env.MOCK_LLM, "MOCK_LLM is empty"],
       ...(["deeplink_with_balance", "deeplink_no_balance"] as const).map((k): [boolean, string] =>
-        [!/REPLACE_ME|play\.google\.com/.test(L.cfg.handoff[k]), `handoff.${k} is Yatharth's deep link, not the Play Store stand-in`]),
+        [!/REPLACE_ME|play\.google\.com/.test(L.cfg.handoff[k]), `handoff.${k} is the app link (${L.cfg.handoff[k]})`]),
       [!/TODO/.test(rawConfig), "no TODO left in config.yaml (e.g. offer copy to confirm)"],
     ];
     for (const [ok, what] of checks) console.log(`${ok ? "✓" : "✗"} ${what}`);

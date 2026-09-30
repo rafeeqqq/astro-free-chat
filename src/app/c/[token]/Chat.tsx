@@ -21,6 +21,7 @@ type View = {
   handoffAt: number;
   ctaCountdown: number;
   handoffUrl: string;
+  fallbackUrl: string;
   closed: boolean;
   crisis: boolean;
   chart: { moonSign: string; mahadasha: string; antardasha: string; kundli: KundliView | null } | null;
@@ -47,6 +48,23 @@ const typingMs = (p: View["pacing"], text: string) =>
 async function post<T>(url: string, body: unknown): Promise<T> {
   const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   return (await r.json()) as T;
+}
+
+// Opens the app. For an app link (astrolokal://…): if the page is still showing after 1.5 s, the app didn't open
+// (usually not installed), so go to the fallback (the Play Store). Web links open normally.
+function openApp(e: { preventDefault(): void } | null, url: string, fallback: string) {
+  if (/^https?:\/\//i.test(url) || !fallback) return; // a normal link: let the browser follow it
+  e?.preventDefault();
+  let left = false;
+  const onHide = () => { if (document.visibilityState === "hidden") left = true; };
+  document.addEventListener("visibilitychange", onHide);
+  window.addEventListener("pagehide", onHide);
+  window.location.href = url;
+  setTimeout(() => {
+    document.removeEventListener("visibilitychange", onHide);
+    window.removeEventListener("pagehide", onHide);
+    if (!left && document.visibilityState === "visible") window.location.href = fallback;
+  }, 1500);
 }
 
 function beacon(token: string, name: string, props: Record<string, unknown> = {}) {
@@ -321,7 +339,7 @@ export default function Chat({ token }: { token: string }) {
       <Shell>
         <Empty title={view.ui.invalid_title} text={view.ui.invalid_text} />
         <div className={s.footer}>
-          <a className={s.cta} href={view.handoffUrl}><span className={s.ctaLabel}>{view.ui.cta_label}</span></a>
+          <a className={s.cta} href={view.handoffUrl} onClick={(e) => openApp(e, view.handoffUrl, view.fallbackUrl)}><span className={s.ctaLabel}>{view.ui.cta_label}</span></a>
         </div>
       </Shell>
     );
@@ -349,7 +367,8 @@ export default function Chat({ token }: { token: string }) {
             if (window.history.length > 1) window.history.back();
             else {
               beacon(token, "back_to_app", { seconds_left: left }); // leaving, not a CTA decision: counted separately
-              window.location.href = view.handoffUrl;
+              if (/^https?:\/\//i.test(view.handoffUrl) || !view.fallbackUrl) window.location.href = view.handoffUrl;
+              else openApp(null, view.handoffUrl, view.fallbackUrl);
             }
           }}
         >
@@ -391,7 +410,7 @@ export default function Chat({ token }: { token: string }) {
           <span className={s.stripIcon} aria-hidden>{showSheet ? "🎉" : "🎁"}</span>
           <span className={s.stripText}>{showSheet ? ui.strip_reveal.replace(/^🎉\s*/, "") : ui.strip_during.replace(/^🎁\s*/, "")}</span>
           {showSheet ? (
-            <a className={s.stripCta} href={view.handoffUrl} onClick={() => beacon(token, "cta_tapped", { seconds_left: left, from: "strip" })}>
+            <a className={s.stripCta} href={view.handoffUrl} onClick={(e) => { beacon(token, "cta_tapped", { seconds_left: left, from: "strip" }); openApp(e, view.handoffUrl, view.fallbackUrl); }}>
               {ui.strip_cta}
             </a>
           ) : null}
@@ -467,7 +486,7 @@ export default function Chat({ token }: { token: string }) {
           <a
             className={`${s.cta} ${ctaSeconds > 0 ? s.ctaUrgent : s.ctaDone}`}
             href={view.handoffUrl}
-            onClick={() => beacon(token, "cta_tapped", { seconds_left: left, from: "sheet" })}
+            onClick={(e) => { beacon(token, "cta_tapped", { seconds_left: left, from: "sheet" }); openApp(e, view.handoffUrl, view.fallbackUrl); }}
           >
             <span className={s.ctaLabel}>{ui.cta_label}</span>
             {ctaSeconds > 0 ? <CountdownRing frac={ringFrac} seconds={ctaSeconds} /> : <ArrowIcon />}
