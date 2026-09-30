@@ -144,12 +144,13 @@ guardrails:
     - '\b(are you (an )?(ai|bot|real|human))\b'
     - '\b(ai ho|bot ho|real ho|insaan ho)\b'
 
-# Where the CTA sends the user: booking initiation, by wallet balance at list time (user.wallet_balance).
-# Stand-ins: the Play Store page (opens the app if installed). Replace both with Yatharth's action deep links
-# before the pilot send; `npm run check` reminds you.
+# Where the CTA sends the user.
+# v1: one generic deep link that opens the Astrolokal app on its home page → paste it into BOTH lines below.
+# Later: booking-initiation deep links (with balance → straight into a chat; no balance → recharge first), picked per user
+# by wallet_balance. Until the link is pasted, both are the Play Store stand-in and `npm run prodcheck` shows ✗.
 handoff:
-  deeplink_with_balance: "https://play.google.com/store/apps/details?id=com.astrolokal.astrology"   # has balance → straight into a chat
-  deeplink_no_balance: "https://play.google.com/store/apps/details?id=com.astrolokal.astrology"     # no balance → recharge first
+  deeplink_with_balance: "https://play.google.com/store/apps/details?id=com.astrolokal.astrology"   # v1: the generic app link (same as below)
+  deeplink_no_balance: "https://play.google.com/store/apps/details?id=com.astrolokal.astrology"     # v1: the generic app link (same as above)
   # Attribution on every tap: {token} {prompt_version} {cohort} {arm} {balance} (token is opaque, never a phone number)
   utm: "utm_source=wati&utm_campaign=ai_free_chat&utm_content={prompt_version}&utm_term={token}&cohort={cohort}&arm={arm}&bal={balance}"
 
