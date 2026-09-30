@@ -1,0 +1,288 @@
+<title>AI Free Chat Pilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#FBF7F3; --paper:#FFFFFF; --ink:#262626; --ink-2:#575757; --ink-3:#8a817a;
+  --line:#EADFD5; --orange:#F45722; --orange-ink:#B8390F; --orange-wash:#FFF1E8;
+  --purple:#4E1B96; --purple-wash:#F1ECFA; --sand:#F3C17B; --ok:#1F7A4D; --warn:#9A5B00; --warn-wash:#FFF6E0;
+  --display:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark; --ground:#17130F; --paper:#211B16; --ink:#F3ECE6; --ink-2:#C2B6AC; --ink-3:#8E8279;
+  --line:#3A302A; --orange:#FF7A4D; --orange-ink:#FFB08F; --orange-wash:#3A2116; --purple:#B79BEA; --purple-wash:#2A2138;
+  --warn:#F2C065; --warn-wash:#35290F; --ok:#6FD3A0;}}
+:root[data-theme="dark"]{
+  color-scheme:dark; --ground:#17130F; --paper:#211B16; --ink:#F3ECE6; --ink-2:#C2B6AC; --ink-3:#8E8279;
+  --line:#3A302A; --orange:#FF7A4D; --orange-ink:#FFB08F; --orange-wash:#3A2116; --purple:#B79BEA; --purple-wash:#2A2138;
+  --warn:#F2C065; --warn-wash:#35290F; --ok:#6FD3A0;}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--display);font-size:15px;line-height:1.6;padding:0 20px;padding-block:40px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.08;font-weight:700;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font-size:22px;font-weight:600;margin:0 0 6px;letter-spacing:-.01em;text-wrap:balance}
+.lede{font-size:18px;color:var(--ink-2);max-width:62ch;margin:14px 0 0}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--orange-ink)}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{font-family:var(--mono);font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);color:var(--ink-2);background:var(--paper)}
+.chip.hot{background:var(--orange-wash);border-color:transparent;color:var(--orange-ink)}
+.sub{color:var(--ink-2);max-width:66ch;margin:0 0 20px}
+.bet{border-left:3px solid var(--orange);padding:4px 0 4px 18px;font-size:19px;line-height:1.5;max-width:60ch;margin:0}
+.flow{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
+.step{width:236px;max-width:100%;display:flex;flex-direction:column;gap:10px}
+.cap{font-size:13px;color:var(--ink-2);line-height:1.45}
+.cap b{color:var(--ink);font-weight:600;display:block;font-size:14px}
+.arrow{align-self:center;color:var(--ink-3);font-family:var(--mono);font-size:18px}
+/* phones: fixed light UI, drawn deliberately in both themes */
+.phone{width:236px;max-width:100%;height:470px;border-radius:30px;border:7px solid #1d1a18;background:#fff;overflow:hidden;display:flex;flex-direction:column;font-size:11.5px;color:#262626;font-family:"Onest",system-ui,sans-serif}
+.bar{padding:10px 12px;display:flex;align-items:center;gap:8px;color:#fff}
+.bar.wa{background:#075E54}.bar.al{background:#F45722}
+.av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:11px;flex:none}
+.nm{font-weight:600;line-height:1.2}.nm small{display:block;font-weight:400;font-size:9.5px;opacity:.85}
+.pane{flex:1;padding:8px;display:flex;flex-direction:column;gap:5px;overflow:hidden}
+.pane.wa{background:#ECE5DD}.pane.al{background:#FAF6F2}
+.bb{max-width:84%;padding:6px 8px;border-radius:9px;line-height:1.38}
+.in{background:#fff;align-self:flex-start;border-top-left-radius:2px}
+.out{background:#DCF8C6;align-self:flex-end;border-top-right-radius:2px}
+.ai{background:#FFEBDD;color:#5A2410;align-self:flex-start;border-top-left-radius:2px}
+.usr{background:#4E1B96;color:#fff;align-self:flex-end;border-top-right-radius:2px}
+.tpl{background:#fff;border-radius:9px;overflow:hidden;align-self:flex-start;max-width:90%}
+.tpl .img{height:70px;background:#F45722;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;text-align:center;padding:6px}
+.tpl .tx{padding:7px 8px;line-height:1.38}
+.tpl .btn{border-top:1px solid #eee;padding:7px;text-align:center;color:#0a7cff;font-weight:500}
+.strip{background:#FFF1E6;color:#9A3412;padding:6px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:10.5px}
+.strip span:last-child{background:#F45722;color:#fff;border-radius:6px;padding:3px 8px;font-weight:600}
+.cta{background:#F45722;color:#fff;border-radius:9px;padding:9px;text-align:center;font-weight:600}
+.fld{border:1px solid #E6DDD5;border-radius:8px;padding:7px 8px;color:#575757;background:#fff}
+.note{background:#F1ECFA;color:#3B1573;border-radius:8px;padding:7px 8px;line-height:1.38}
+.sys{align-self:center;background:#FFF6D6;color:#6b5200;border-radius:7px;padding:3px 8px;font-size:10px}
+.kundli{height:58px;border:1px solid #F3C17B;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#9A3412;background:#fff}
+.lanes{display:flex;flex-direction:column;gap:40px}
+.lane-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.tag{font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:6px}
+.tag.now{background:var(--orange-wash);color:var(--orange-ink)}.tag.next{background:var(--purple-wash);color:var(--purple)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.cell{background:var(--paper);padding:18px 20px}
+.cell .k{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.cell .v{font-size:17px;font-weight:600;margin:4px 0 2px}
+.cell p{margin:0;color:var(--ink-2);font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--paper)}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+tr:last-child td{border-bottom:none}
+td:first-child{font-weight:600;white-space:nowrap}
+.pill{font-family:var(--mono);font-size:11px;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.p-open{background:var(--warn-wash);color:var(--warn)}
+.p-dec{background:var(--orange-wash);color:var(--orange-ink)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:28px}
+.at li{margin-bottom:8px;color:var(--ink-2)} .at li b{color:var(--ink);font-weight:600}
+ul{padding-left:18px;margin:0}
+.risk{background:var(--warn-wash);border-radius:14px;padding:18px 22px}
+.risk h2{color:var(--warn);font-size:18px}
+.risk p{margin:6px 0 0;max-width:72ch}
+footer{font-size:13px;color:var(--ink-3);font-family:var(--mono)}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Astrolokal · Retention experiment · Draft</div>
+  <h1>AI free chat that hands users to a real astrologer</h1>
+  <p class="lede">AI reads the kundli and gives a short, specific free reading. A real astrologer gives the upay once the user recharges. The pilot starts on WhatsApp with a small group of lapsed payers.</p>
+  <div class="meta"><span class="chip">Owner: Rafeeq</span><span class="chip">24 Sep 2026</span><span class="chip hot">Pilot: WhatsApp, ~1,200 lapsed payers</span><span class="chip">Metric: recharge within 7 days</span></div>
+</header>
+
+<section>
+  <h2>The bet</h2>
+  <p class="sub">We don't offer free chat today, because every free minute costs a human astrologer's time and we're already short on supply. AI takes that cost away. Sitara showed that AI doesn't sell well as the paid product, so here the AI doesn't try to. It creates curiosity and passes the user on.</p>
+  <p class="bet">If AI gives lapsed payers a free, personal reading and then hands them to a real astrologer, more of them will recharge within 7 days than a holdout that gets nothing.</p>
+</section>
+
+<section class="two">
+  <div>
+    <h2>What AT does today</h2>
+    <p class="sub">Tested 24 Sep as a new user. The whole chat takes about 2 minutes.</p>
+    <ul class="at">
+      <li><b>Kundli collected before the chat.</b> Name, gender, DOB, time and place, with "don't know my time, still ~80% accurate".</li>
+      <li><b>Scripted reading.</b> Kundli image, then moon sign, then current dasha, then a hopeful "transformation in 2026".</li>
+      <li><b>Never answers the question.</b> "When will I get married" gets "checking your grahas" and more vague positive lines.</li>
+      <li><b>Offers it for money twice.</b> A "100% cashback" strip with Recharge at the top, and "continue at ₹26/min" at the bottom.</li>
+      <li><b>No AI label.</b> Only "automated message to confirm chat has started".</li>
+    </ul>
+  </div>
+  <div>
+    <h2>Where we beat it</h2>
+    <p class="sub">We keep what works and fix what's weak.</p>
+    <ul class="at">
+      <li><b>Keep:</b> kundli before chat, short fast messages, the kundli image, facts before hope, the cashback strip.</li>
+      <li><b>Answer part of the question.</b> Give one specific point from the chart, then hold back the upay for the astrologer.</li>
+      <li><b>For returning users,</b> open on the topic of their last chat. AT can't do this.</li>
+      <li><b>Hand-off to a real astrologer</b> who already has the context, so the user never repeats themselves.</li>
+      <li><b>Prompt editable from admin,</b> so we can change it daily without a release.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="lanes">
+  <div>
+    <div class="lane-h"><h2>Pilot flow on WhatsApp</h2><span class="tag now">Now · little app dev</span></div>
+    <div class="flow">
+      <div class="step">
+        <div class="phone">
+          <div class="bar wa"><div class="av" style="background:#F45722;color:#fff">A</div><div class="nm">Astrolokal<small>Business account</small></div></div>
+          <div class="pane wa">
+            <div class="tpl">
+              <div class="img">Aapki kundli mein kuch naya dikh raha hai</div>
+              <div class="tx">Namaste Rafeeq ji, pichli baar aapne <b>shaadi</b> ke baare mein poocha tha. Is mahine aapke 7th house mein badlav hai. 3 minute free baat karein?</div>
+              <div class="btn">Haan, batayiye</div>
+            </div>
+          </div>
+        </div>
+        <div class="cap"><b>1. Personal WhatsApp template</b>Pulls the topic from the user's last chat. The quick-reply button opens the 24-hour window.</div>
+      </div>
+      <div class="step">
+        <div class="phone">
+          <div class="bar wa"><div class="av" style="background:#FFBF6E;color:#5A2410">O</div><div class="nm">Omkar ji<small>AI Astro Sahayak · Astrolokal</small></div></div>
+          <div class="pane wa">
+            <div class="out bb">Haan, batayiye</div>
+            <div class="in bb" style="padding:4px"><div class="kundli">Aapki kundli</div></div>
+            <div class="in bb">Rafeeq ji, aapki Chandra rashi Tula hai</div>
+            <div class="in bb">Abhi Shani ki mahadasha chal rahi hai</div>
+            <div class="out bb">shaadi kab hogi?</div>
+            <div class="in bb">Shukra 2027 ki pehli chhamahi mein strong yog bana rahe hain</div>
+            <div class="in bb">Par Shani ek jagah rok raha hai. Upay detail mein dekhna padega</div>
+          </div>
+        </div>
+        <div class="cap"><b>2. AI reading in WhatsApp</b>Chart facts come from the wrapper, never made up. Short messages, and a specific answer with the upay held back.</div>
+      </div>
+      <div class="step">
+        <div class="phone">
+          <div class="bar wa"><div class="av" style="background:#FFBF6E;color:#5A2410">O</div><div class="nm">Omkar ji<small>AI Astro Sahayak · Astrolokal</small></div></div>
+          <div class="pane wa">
+            <div class="in bb">Iska upay aur sahi samay Pandit Ramesh ji batayenge. Woh shaadi ke expert hain</div>
+            <div class="in bb">Maine aapki kundli unke paas bhej di hai, dobara kuch batana nahi padega</div>
+            <div class="tpl" style="margin-top:4px">
+              <div class="tx"><b>Pandit Ramesh ji</b> · 4.9 · abhi online<br>Pehle recharge par 100% cashback</div>
+              <div class="btn">Ramesh ji se baat karein</div>
+            </div>
+          </div>
+        </div>
+        <div class="cap"><b>3. Hand-off</b>After ~4 user messages or 5 minutes. A deep link to an online human astrologer in the same topic.</div>
+      </div>
+      <div class="step">
+        <div class="phone">
+          <div class="bar al"><span style="font-size:14px">&larr;</span><div class="av" style="background:#4E1B96;color:#fff">R</div><div class="nm">Pandit Ramesh ji<small>Shaadi expert · ₹24/min</small></div></div>
+          <div class="strip"><span>100% cashback on first recharge</span><span>Recharge</span></div>
+          <div class="pane al">
+            <div class="note">Omkar ji ki reading: Tula rashi, Shani mahadasha. Sawal: shaadi kab hogi. 2027 H1 yog, Shani ka rukawat.</div>
+            <div class="usr bb">Namaste ji, Omkar ji ne meri kundli dekhi. Shaadi ke upay ke baare mein jaanna hai</div>
+            <div style="flex:1"></div>
+            <div class="cta">Recharge karke chat shuru karein</div>
+          </div>
+        </div>
+        <div class="cap"><b>4. In the app, with a human</b>The user's first message comes pre-filled with the reading, so the astrologer starts with context. The recharge strip opens the wallet.</div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="lane-h"><h2>In-app version, if the pilot works</h2><span class="tag next">Next · V1</span></div>
+    <div class="flow">
+      <div class="step">
+        <div class="phone">
+          <div class="bar al"><span style="font-size:14px">&larr;</span><div class="nm">Apni kundli banaiye</div></div>
+          <div class="pane al" style="gap:7px">
+            <div class="note" style="background:#FFF1E6;color:#9A3412">3 minute free chat, bina recharge ke</div>
+            <div class="fld">Naam: Rafeeq</div><div class="fld">Janm tithi: 12 Mar 1998</div><div class="fld">Janm samay: 06:40 AM</div>
+            <div style="color:#575757;line-height:1.35">&#9744; Samay nahi pata? Phir bhi sahi reading milegi</div>
+            <div class="fld">Janm sthan: Kanpur</div>
+            <div style="flex:1"></div>
+            <div class="cta">Free chat shuru karein</div>
+          </div>
+        </div>
+        <div class="cap"><b>Kundli before chat</b>New users only. Lapsed payers already have details on file.</div>
+      </div>
+      <div class="step">
+        <div class="phone">
+          <div class="bar al"><div class="av" style="background:#FFBF6E;color:#5A2410">O</div><div class="nm">Omkar ji<small>AI Astro Sahayak</small></div><span style="margin-left:auto;background:#fff;color:#F45722;border-radius:10px;padding:2px 7px;font-size:10px;font-weight:600">1:12 free</span></div>
+          <div class="strip"><span>100% cashback on first recharge</span><span>Recharge</span></div>
+          <div class="pane al">
+            <div class="ai bb" style="padding:4px"><div class="kundli">Aapki kundli</div></div>
+            <div class="ai bb">Rafeeq ji, aapki Chandra rashi Tula hai</div>
+            <div class="ai bb">Abhi Shani ki mahadasha chal rahi hai</div>
+            <div class="usr bb">shaadi kab hogi?</div>
+            <div class="ai bb">Shukra 2027 ki pehli chhamahi mein strong yog bana rahe hain</div>
+            <div class="ai bb">Par Shani ek jagah rok raha hai. Upay detail mein dekhna padega</div>
+          </div>
+        </div>
+        <div class="cap"><b>AI free chat in the app</b>A visible timer and the cashback strip. Recharge opens the wallet at any point.</div>
+      </div>
+      <div class="step">
+        <div class="phone">
+          <div class="bar al"><div class="nm">Free chat khatam</div></div>
+          <div class="pane al">
+            <div class="ai bb" style="opacity:.5">Par Shani ek jagah rok raha hai...</div>
+            <div style="flex:1"></div>
+            <div style="background:#fff;border:1px solid #E6DDD5;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;gap:8px;align-items:center"><div class="av" style="background:#4E1B96;color:#fff;width:32px;height:32px">R</div><div><div style="font-weight:600">Pandit Ramesh ji</div><div style="color:#575757;font-size:10px">Shaadi expert · 4.9 · online</div></div></div>
+              <div style="color:#575757;line-height:1.38">Aapki chat unke paas pahunch gayi hai. Wahi se aage baat hogi</div>
+              <div class="note" style="background:#FFF1E6;color:#9A3412">Pehle recharge par 100% cashback</div>
+              <div class="cta">Recharge karke baat karein</div>
+            </div>
+          </div>
+        </div>
+        <div class="cap"><b>Hand-off sheet</b>A human astrologer who's online now, in the same topic. The AI chat summary is pinned for them.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Pilot design</h2>
+  <p class="sub">Small, fast and measurable. The holdout isn't optional: our August WhatsApp win-back test did worse than its control on revenue.</p>
+  <div class="grid">
+    <div class="cell"><div class="k">Who</div><div class="v">Lapsed payers</div><p>Recharged at least once, no booking in 14–60 days, birth details on file.</p></div>
+    <div class="cell"><div class="k">How many</div><div class="v">~1,200 users, split 50/50</div><p>Enough to see 7-day recharge move from about 4% to 8%. Holdout gets no message.</p></div>
+    <div class="cell"><div class="k">Primary metric</div><div class="v">Recharge within 7 days</div><p>Per targeted user, treatment vs. holdout. Not per user who replied.</p></div>
+    <div class="cell"><div class="k">Also track</div><div class="v">Reply → hand-off → recharge</div><p>Revenue at day 14, talk time with the human astrologer, opt-outs and complaints.</p></div>
+    <div class="cell"><div class="k">Duration</div><div class="v">2 weeks</div><p>Read 20 chats per prompt version by hand before changing it.</p></div>
+    <div class="cell"><div class="k">Stop rule</div><div class="v">2 versions, no lift → stop</div><p>No lift at 2 weeks: change the hook. Still none: shut it down.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>What we need to build it</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Piece</th><th>What</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr><td>WhatsApp bot</td><td>WATI inbound → n8n → Omkar wrapper → reply. Splits replies into short messages. Hands off after ~4 user messages or 5 minutes.</td><td>Rafeeq + tech (sizing)</td></tr>
+      <tr><td>Chart facts</td><td>The wrapper passes moon sign, dasha and house lords as variables. The AI never generates them itself.</td><td>Omkar wrapper</td></tr>
+      <tr><td>Editable prompt</td><td>Prompt lives in admin config, editable on prod without a release. A version tag is logged on every chat.</td><td>Yatharth to confirm</td></tr>
+      <tr><td>Hand-off link</td><td>Deep link to a specific online astrologer, with a pre-filled first message that carries the reading.</td><td>Yatharth to confirm the link can pre-fill</td></tr>
+      <tr><td>Offer</td><td>100% cashback on first recharge for the pilot group, and a strip with Recharge that opens the wallet.</td><td>Tejaswi (budget from free coins)</td></tr>
+      <tr><td>Segment + holdout</td><td>Lapsed-payer list, random 50/50 split, the last-chat topic for each user.</td><td>Analytics</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Decisions still open</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Decision</th><th>Why it matters</th><th>Proposal</th></tr></thead>
+    <tbody>
+      <tr><td>AI label</td><td>Our website promises "100% private and human-led sessions". An AI that hides it breaks that promise, and legal is writing AI rules now.</td><td><span class="pill p-dec">Label as "AI Astro Sahayak"</span></td></tr>
+      <tr><td>WhatsApp AI policy</td><td>Meta limits general-purpose AI chatbots on the Business API. A business-specific astrology assistant should be fine, but WATI needs to confirm.</td><td><span class="pill p-open">Check with WATI</span></td></tr>
+      <tr><td>Hand-off astrologers</td><td>Which top astrologers take these users, and are they online when the chat ends?</td><td><span class="pill p-open">Pick 5–10 P1s per topic</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="risk">
+  <h2>What would sink this</h2>
+  <p><b>A generic hook.</b> Our August WhatsApp win-back test did worse than doing nothing (ARPU ₹11 vs ₹85). If the first message reads like a mass blast, this repeats. The hook must come from the user's own last chat and kundli.</p>
+  <p><b>A broken hand-off.</b> If the human astrologer asks for birth details again right after the user pays, the user feels tricked. The pre-filled context message is a must-have, not an extra.</p>
+</section>
+
+<footer>Draft for team review · AI Astro · prompt v0.1 ready</footer>
+</div>

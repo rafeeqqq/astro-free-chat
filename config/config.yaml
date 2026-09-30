@@ -1,0 +1,246 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Astrolokal AI free chat: the ONE file you edit (plus prompt_template.md).
+# Rules: change one thing at a time, bump prompt_version, run `npm run verify` (and `npm run prodcheck` before a send).
+# Every chat is logged with prompt_version, cohort, arm and a hash of this file, so results stay traceable.
+#
+# Sections:  experiment · timing · pacing · model · persona · style · insight_levels · scripted · monthly_line
+#            topics · guardrails · handoff · assets · cohorts · source (daily users) · ui (every word on screen) · card_text_by_topic
+# ─────────────────────────────────────────────────────────────────────────────
+
+experiment:
+  id: astro_free_chat_pilot_v1
+  prompt_version: free_chat_v1.8   # bump on every change; history in docs/CHANGELOG.md
+  # The pilot cohort is FIXED and everyone in it gets the same experience (one arm, weight 100).
+  # The control is the holdout, which never gets the WATI message (split when the list is built).
+  # To try something new: change the settings below, bump prompt_version, and compare versions over time.
+  # Parallel arms are still supported (weights must add up to 100), but don't use them on a fixed cohort.
+  arms:
+    - id: pilot
+      weight: 100
+      insight_level: minimal      # minimal | specific (see insight_levels)
+      allow: []                   # guard rules this arm may break, e.g. [date_or_year, relative_time] for specific
+
+timing:
+  free_seconds: 120                 # length of the free chat
+  clock_starts: open                # open = when the chat page opens (AT-style urgency) · first_message = at the first question
+  pull_until_seconds_left: 40       # from here, Omkar leaves them on one open thread (the hook) instead of new insights
+  idle_nudge_seconds: 25            # user quiet this long → Omkar carries on by himself, until the chat ends. 0 = off
+  closing_at_seconds_left: 15       # at 15 s left Omkar sends the closing line (or answers a last message with it)
+  handoff_card_at_seconds_left: 10  # app shows the hand-off card
+  cta_countdown_seconds: 5          # the button counts down this long when the card appears, then stays (nothing opens by itself). 0 = no countdown
+  llm_timeout_ms: 6000              # slower than this → send fallback_reply instead
+
+# How messages arrive on screen (milliseconds). Typing time grows with message length, like a real person,
+# within typing_min_ms..typing_max_ms. The first message always gets its full typing time, however fast the model replies.
+pacing:
+  read_delay_ms: 600          # pause after the user sends, before "typing…" appears
+  typing_min_ms: 800          # shortest "typing…" before a message
+  typing_ms_per_char: 25      # extra typing time per character
+  typing_max_ms: 1800         # longest "typing…" before a message
+  between_messages_ms: 350    # gap after each message before the next "typing…"
+  system_note_ms: 1100        # how long "Connecting you to…" / "has joined" each hold
+  kundli_ms: 2600             # "typing…" after "Aapki kundli dekh raha hoon…", before the kundli card appears
+
+# Google Gemini, called directly with GEMINI_API_KEY (see .env.example).
+model:
+  name: gemini-3.5-flash-lite       # Gemini model id; logged with every message
+  thinking: minimal                 # minimal | low | medium | high — short chat replies need "minimal" (fastest)
+  temperature: 0.6
+  max_output_tokens: 300            # room for 3 short bubbles (raise it if thinking goes above minimal: thinking uses it too)
+
+persona:
+  name: "Astro Omkar"               # shown in the chat header and used by the AI as its own name
+  avatar_url: "/persona/omkar.jpg"  # square photo: a file in public/ ("/persona/x.jpg") or an https:// link. "" shows the initial
+  header_label: ""                  # optional line before the status in the header (e.g. "Vedic astrology"). "" = just the status
+  verified_badge: true              # green tick next to the name in the header, like AT
+  voice: >-
+    A warm, experienced Vedic astrologer. Simple everyday words, respectful "aap". Calm and confident, never pushy.
+  disclosure_line: "Main Astrolokal ka Astro Sahayak hoon 🙏"
+
+style:
+  max_bubbles: 3                    # most bubbles in one reply
+  first_answer_bubbles: 2           # the first answer, after the kundli card + chart line
+  early_replies: 2                  # the next replies get max_bubbles (a full, warm start)…
+  later_bubbles: [2, 3]             # …then each reply picks 2 or 3, like a person
+  max_words_per_bubble: 7           # AT-style: short texts, 3–7 words
+  question_budget: 3                # most questions Omkar asks in a chat; never two replies in a row
+  separator: "||"
+
+# How much the AI gives away. The arm picks one.
+insight_levels:
+  minimal: >-
+    GIVE: a clear answer to their first question (the direction and the planet behind it), who they are,
+    what this phase of life feels like, small details that feel true. KEEP for later: the exact timing, the
+    full picture of the partner or job, what is blocking it and the upay. Don't say you are keeping
+    anything back; just don't go there yet.
+  specific: >-
+    GIVE: a clear answer to their first question, and you may use the computed window {window_for_topic}
+    if it is not empty. KEEP for later: the full picture, what is blocking it and the upay. Don't say
+    you are keeping anything back.
+
+# Lines the ENGINE sends word-for-word (no AI). Edit freely; {variables} are filled in.
+# Available: {name} {moon_sign} {mahadasha} {antardasha} {last_topic_label} {persona_name} {monthly_line}
+scripted:
+  # After "Astro Omkar has joined": a short greeting. The kundli is NOT shown yet.
+  opening:
+    - "Namaste {name} ji 🙏"
+    - "Aapka swagat hai."
+  topic_hook:                        # 3rd greeting bubble: the question, by last_topic
+    shaadi: "Shaadi ke baare mein jaanna hai?"
+    naukri: "Naukri ke baare mein jaanna hai?"
+    paisa: "Paise ke baare mein jaanna hai?"
+    parivaar: "Parivaar ke baare mein jaanna hai?"
+    pyaar: "Pyaar ke baare mein jaanna hai?"
+    default: "Batayiye, kya jaanna chahte hain?"
+  # First answer = chart_intro → kundli card → chart_line → 1 answer. chart_intro "" = skip it.
+  chart_intro: "Aapki kundli dekh raha hoon…"
+  chart_line: "Rashi {moon_sign}, dasha {mahadasha} ki."
+  chart_line_rashi_only: "Rashi {moon_sign} hai aapki."   # no birth time and the dasha is uncertain (no birth time + rashi uncertain → no chart line, no kundli card)
+  # Sent at closing_at_seconds_left: the last open thread, just before the hand-off card.
+  closing:
+    - "{name} ji, ek aur zaroori baat dikh rahi hai…"
+  fallback_reply: "Yeh dhyaan se dekhne wali baat hai."
+  health_reply: "Sehat ke liye doctor se zaroor milein."
+  crisis_reply:                      # sent when a user shows distress; the sales card is NOT shown
+    - "{name} ji, aap akele nahi hain."
+    - "Aapki baat sunne wale log hain."
+    - "Abhi Tele-MANAS 14416 par call karein. Free, 24 ghante."
+
+# Optional line for the whole pilot (festival, big transit). "" = off.
+monthly_line: ""
+
+# Everyday words users type → topic. Used when the user names a topic mid-chat.
+topics:
+  shaadi: [shaadi, shadi, marriage, vivah, rishta, wife, husband, biwi, pati, patni]
+  naukri: [naukri, job, career, kaam, business, vyapar, promotion, interview]
+  paisa: [paisa, paise, money, dhan, loan, karz, income]
+  parivaar: [parivaar, family, ghar, maa, papa, bachche, baccha]
+  pyaar: [pyaar, pyar, love, girlfriend, boyfriend, breakup, crush]
+  sehat: [health, sehat, bimari, beemari, hospital, operation, dawai]
+
+# Every AI reply is checked against these. A hit removes that bubble (and logs the reason);
+# if nothing is left, fallback_reply is sent instead.
+guardrails:
+  banned:
+    - { reason: date_or_year, pattern: '\b(19|20)\d{2}\b' }
+    - { reason: date_or_year, pattern: '\b(january|february|march|april|june|july|august|september|october|november|december|janvari|farvari|tareekh|tarikh)\b' }
+    # future timing only ("agle saal", "2 mahine mein"); the user's own past ("2 saal se") may be echoed back
+    - { reason: relative_time, pattern: '\b(agle|aane wale|is) (saal|sal|mahine|mahino|hafte|hafton)\b|\b(do|teen|char|chaar|\d+) (saal|sal|mahine|mahino|hafte|hafton) (mein|me|ke andar|tak|baad)\b' }
+    - { reason: remedy, pattern: '\b(mantra|jaap|jap|ratna|gemstone|pukhraj|neelam|gomed|moonga|panna|rudraksh\w*|vrat|daan kar\w*|puja karw\w*|havan)\b' }
+    - { reason: money, pattern: '(₹|\brs\.?\s?\d|\brupay\w*|\brecharge\b|\bcashback\b|\bdiscount\b|\boffer\b|\bper minute\b|\bprice\b)' }
+    - { reason: ai_mention, pattern: '\b(ai|a\.i\.|bot|chatbot|language model|gemini|gpt|openai|prompt)\b' }
+    - { reason: fear, pattern: '\b(nazar|kala jaadu|kaala jadu|black magic|tona|totka|maut|death|accident|durghatna|bura samay|kharab samay)\b' }
+    - { reason: guarantee, pattern: '(\b(pakk[aie]|guarantee|zaroor hog[aie]|definitely|tay hai|nishchit)\b|100 ?%)' }
+    - { reason: handoff_talk, pattern: '\b(pandit|panditji|astrologer se|baad mein bata\w*|agli baar|next time)\b' }   # the chat never points away from itself; the card does
+    - { reason: human_claim, pattern: '(main (ek )?insaan|main real|i am (a )?human|i am real)' }
+    - { reason: filler, pattern: '(checking your grahas|celestial|blueprint|please wait|ruko)' }
+  crisis:
+    - '\b(suicide|khudkushi|khud ?kushi|aatmahatya|self ?harm)\b'
+    - '(marna chahta|marna chahti|mar jaun|mar jaunga|mar jaungi|jaan de d|jeene ka mann nahi|jeena nahi chahta|jeena nahi chahti)'
+  injection:
+    - '(ignore (all|previous|above)|system prompt|your instructions|developer mode|act as)'
+  ai_question:
+    - '(tum|aap) (ai|bot|robot|real|insaan|human)\b'
+    - '\b(are you (an )?(ai|bot|real|human))\b'
+    - '\b(ai ho|bot ho|real ho|insaan ho)\b'
+
+# Where the CTA sends the user: booking initiation, by wallet balance at list time (user.wallet_balance).
+# Stand-ins: the Play Store page (opens the app if installed). Replace both with Yatharth's action deep links
+# before the pilot send; `npm run check` reminds you.
+handoff:
+  deeplink_with_balance: "https://play.google.com/store/apps/details?id=com.astrolokal.astrology"   # has balance → straight into a chat
+  deeplink_no_balance: "https://play.google.com/store/apps/details?id=com.astrolokal.astrology"     # no balance → recharge first
+  # Attribution on every tap: {token} {prompt_version} {cohort} {arm} {balance} (token is opaque, never a phone number)
+  utm: "utm_source=wati&utm_campaign=ai_free_chat&utm_content={prompt_version}&utm_term={token}&cohort={cohort}&arm={arm}&bal={balance}"
+
+# What the chat uses. Switch off per cohort to test what actually moves the tap rate.
+assets:
+  kundli: true        # the kundli card + "Rashi X, dasha Y ki." with the first answer
+  last_chat: true     # their last consult's summary goes into the prompt (so Omkar can refer to it)
+
+# Who gets the chat. Every user in the list has a cohort; a cohort changes ONLY what is different for it
+# (any section below except experiment). Empty = the main config as is. Bump prompt_version when you edit one.
+default_cohort: lapsed
+cohorts:
+  lapsed: {}                  # paid before, not recharged recently: the main flow
+  low_balance:                # some balance left: get them to use it, then top up
+    ui:
+      card_offer: "Your balance is waiting · 100% cashback on your next recharge"   # TODO: confirm the offer with Tejaswi
+  zero_balance:               # no balance: give value first, then the first recharge
+    ui:
+      card_offer: "100% cashback on your first recharge"
+  # Recharge-count buckets from the daily retargeting query (rc_bucket). Same experience for now; each gets its own
+  # row in /admin, so we can see which bucket converts. Add overrides here to give a bucket its own hook or offer.
+  rc1: {}
+  rc2: {}
+  rc3: {}
+  rc4: {}
+  rc5_plus: {}
+
+# Where today's users come from: the daily retargeting query in Redash (run by `npm run sync`, a daily Devtron cron).
+# Map each field to the query's column name. The kundli is computed from dob + tob + pob.
+# The WATI link is https://<chat domain>/u/{{user_id}}: tapping it opens that user's chat, already filled in.
+source:
+  redash_query_id: 20605
+  columns:
+    user_id: user_id
+    dob: DOB
+    tob: TOB                  # empty for ~half the users → Moon chart
+    pob: POB                  # "City, State, India"
+    name: name                # optional: not in the query yet. Without it the chat says "Namaste ji 🙏" and uses "aap"
+    gender: gender            # optional: not in the query yet
+    cohort: rc_bucket         # the journey/cohort label (decided on the business side); used for analytics and overrides
+    # optional, if the query has them:
+    # lat: pob_lat
+    # lon: pob_lon
+    # last_topic: last_topic
+    # last_summary: last_summary
+    # wallet_balance: wallet_balance
+    # holdout: holdout         # 1 = control group: never messaged, and their link never opens a chat
+  cohort_map: { RC1: rc1, RC2: rc2, RC3: rc3, RC4: rc4, "RC5+": rc5_plus }   # query value → our cohort (see cohorts)
+  lagna_needs_city: true      # a birth place matched only to its state gets a Moon chart instead of a guessed lagna
+  links:
+    user_id_pattern: "^[0-9]{1,15}$"   # what a valid user_id looks like; anything else gets the "link isn't working" page
+    lookback_days: 2                   # a link tapped up to 2 days after the send still opens that send's chat
+    require_signature: false           # true = the link must also carry &s=<signature> (see README): a user_id can't be changed by hand
+
+# Screen copy. The conversation (Omkar's lines, the hand-off card) is Hinglish; everything around it is English.
+# {name} {moon_sign} {mahadasha} {dob_label} {tob_label} {pob} {gender_label} are filled in.
+ui:
+  # system notes at the start, like an astrologer joining (English, centred pills)
+  joining: "Connecting you to {persona_name}…"
+  joined: "{persona_name} has joined"
+  # shown as the user's first message
+  details_message: "My details:\n{name} · {gender_label} · {dob_label}\n{tob_label} · {pob}"
+  tob_unknown: "Birth time not known"
+  # kundli card
+  kundli_caption: "{name}'s Kundli"
+  kundli_lagna_chart: "Lagna chart"
+  kundli_moon_chart: "Moon chart"
+  moon_sign_label: "Moon sign"
+  dasha_label: "Dasha"
+  # header, banner, timer
+  day_chip: "Today"
+  strip_during: "🎁 Finish this chat to unlock a surprise gift"
+  strip_reveal: "🎉 You've won 100% cashback!"
+  time_up: "Time's up"
+  time_up_status: "Chat has ended"
+  status_online: "Online"
+  status_typing: "typing…"
+  strip_cta: "Claim"
+  # hand-off sheet (the CTA)
+  card_text: "{name} ji, aapki kundli ki sabse zaroori baat abhi batani baaki hai 👀"   # the hook above the CTA: an open loop, personal, no fear
+  card_offer: "100% cashback on your first recharge"
+  cta_label: "Talk to astrologer"
+  cta_subtext: "Talk to our top astrologers"   # under the CTA, with verified ticks
+  # input
+  input_placeholder: "Type your question…"
+  send_error: "Message not sent. Please try again."
+  # end and error screens
+  ended_title: "Your free reading has ended"
+  invalid_title: "This link isn't working"
+  invalid_text: "You can talk to an astrologer directly in the Astrolokal app"
+
+# Optional: a different hook per topic the user talked about, e.g. `shaadi: "{name} ji, aapki shaadi ka…"`.
+# Empty = everyone sees ui.card_text (current choice: one generic hook, to find the best-converting line first).
+card_text_by_topic: {}

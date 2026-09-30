@@ -1,0 +1,44 @@
+# Fake users for previews and tests. Real users come from the lapsed-payer list (never commit real data).
+- token: t_demo_shaadi_01
+  name: Rohan Mehta
+  gender: male
+  dob: "2002-11-05"
+  tob: "03:10"
+  pob: Guntur, Andhra Pradesh
+  language: Hinglish
+  moon_sign: Tula
+  mahadasha: Shani
+  antardasha: Ketu
+  lagna: Kanya
+  last_topic: shaadi
+  last_summary: Asked when marriage will happen, family pressure, prefers love marriage
+  last_consult_date: "2026-08-20"
+  consult_count: 3
+  windows: { shaadi: "2027 ki pehli chhamahi" }
+- token: t_demo_notob_02
+  name: sunita devi
+  gender: female
+  dob: "1979-11-02"
+  tob: null
+  pob: Kanpur, Uttar Pradesh
+  language: Hindi
+  moon_sign: Makar
+  mahadasha: Guru
+  antardasha: Rahu
+  last_topic: null
+  last_consult_date: "2026-07-01"
+  consult_count: 7
+- token: t_demo_naukri_03
+  name: Arjun Kumar
+  gender: male
+  dob: "1996-02-29"
+  tob: "06:10"
+  pob: Patna, Bihar
+  language: Hinglish
+  moon_sign: Mesh
+  mahadasha: Mangal
+  antardasha: Budh
+  lagna: Vrishabh
+  last_topic: naukri
+  last_consult_date: "2026-09-01"
+  consult_count: 1

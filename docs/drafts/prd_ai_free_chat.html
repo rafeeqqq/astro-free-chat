@@ -1,0 +1,270 @@
+<table data-layout="wide">
+<tbody>
+<tr><th data-background="#F4F5F7">Theme</th><td>Astrolokal retention: reactivate lapsed payers with a 2-minute AI free chat that hands off to a real astrologer</td></tr>
+<tr><th data-background="#F4F5F7">Jira Epic</th><td>To be created</td></tr>
+<tr><th data-background="#F4F5F7">Document status</th><td><span data-type="status" data-color="yellow">DRAFT</span></td></tr>
+<tr><th data-background="#F4F5F7">Product Manager</th><td>Rafeeq</td></tr>
+<tr><th data-background="#F4F5F7">Designers</th><td>Rafeeq (V1 mockups, below). Design review welcome before V2.</td></tr>
+<tr><th data-background="#F4F5F7">Developers</th><td>Web chat + engine: Rafeeq. App side: none needed. Deep links, random connect and in-session recharge already exist (confirmed by Yatharth, 24 Sep).</td></tr>
+<tr><th data-background="#F4F5F7">QA</th><td>To be assigned (one pass on Android + iOS before launch)</td></tr>
+<tr><th data-background="#F4F5F7">Product status / Sprint</th><td><span data-type="status" data-color="neutral">TO-DO</span> · Build 25–29 Sep · Live <time datetime="2026-09-30">30 Sep 2026</time> · First read <time datetime="2026-10-07">7 Oct 2026</time></td></tr>
+<tr><th data-background="#F4F5F7">Other links</th><td>Leadership ask: #astroproductinternal thread, Vandana, 18 Sep (ETA asked 24 Sep)</td></tr>
+<tr><th data-background="#F4F5F7">References</th><td>
+<ul>
+<li><a href="https://getlokalapp.atlassian.net/wiki/spaces/ProductAst/pages/1727791151" data-card-appearance="inline"></a> (the June design this pilot makes concrete)</li>
+<li><a href="https://getlokalapp.atlassian.net/wiki/spaces/ProductAst/pages/1832058882" data-card-appearance="inline"></a></li>
+<li><a href="https://getlokalapp.atlassian.net/wiki/spaces/ProductAst/pages/1727430695" data-card-appearance="inline"></a></li>
+</ul>
+</td></tr>
+</tbody>
+</table>
+
+<div data-type="panel-info"><p><strong>In one line:</strong> the AI gives a short free reading from the user's own kundli, and a real astrologer gives the upay once they recharge. We test it on a fixed group of lapsed payers against a holdout that gets nothing.</p></div>
+
+<h2>🎯 Problem Overview</h2>
+<h3>Narrative</h3>
+<p>Free chat is how astrology apps win users back. AT gives every new user a free first chat and uses occasions, like its birthday, to give one to everyone. <strong>Astrolokal has no free chat today</strong>, because every free minute costs a human astrologer's time, and supply is already short. The closest thing we have is free coins, which cost about <strong>5% of monthly spend</strong> (Tejaswi).</p>
+<p>Leadership has asked for AI to be used this way. Vandana, 17 Sep: stop investing in AI astrologers as a paid product, and use AI for short hooks in retargeting journeys: <em>idle user → WhatsApp → AI hook based on the last chat → free chat ends in 2 min → transfer to a real astrologer on recharge.</em> Vandana, 18 Sep: <em>"free chat can be leveraged more often to re-convert the user… AI astro can be leveraged heavily here. Check AT, they don't give any insights, only questions and recharge nudge."</em></p>
+<h3>Problem statement</h3>
+<p>Users who have paid before and then go quiet have no low-cost, personal reason to come back. Our WhatsApp win-back messages are generic, and in August they did <strong>worse than doing nothing</strong> on revenue (ARPU ₹11.25 vs ₹85.38; paying 1.8% vs 5.2%, Hindi/Malayalam/Kannada WATI test).</p>
+<h3>Hypotheses</h3>
+<ol start="1">
+<li>A free reading from the user's <strong>own kundli and last chat topic</strong> gives a lapsed payer a reason to come back that a generic message doesn't.</li>
+<li>Holding back the upay for a <strong>real astrologer</strong> turns that curiosity into a recharge. The AI doesn't have to sell itself, which is where Sitara failed (7% first-to-second conversion once campaign traffic is excluded).</li>
+<li>With AI there is no astrologer cost per free chat, so free chat can reach many more users than a human-run version could.</li>
+</ol>
+<h3>Why now</h3>
+<ul>
+<li>Vandana asked for it as highest priority (18 Sep) and chased the ETA (24 Sep).</li>
+<li>Every app piece already exists, so <strong>no Astrolokal dev time is needed</strong> while tech is focused on connectivity fixes for early October.</li>
+<li>The AI astrologer stack (Omkar wrapper, chart computation, memory summaries) is built and otherwise idle now that Sitara/Omkar are deprioritised as paid products.</li>
+</ul>
+
+<h2>🔗 Related documents &amp; links</h2>
+<table>
+<thead><tr><th>Topic</th><th>Links / notes</th></tr></thead>
+<tbody>
+<tr><td>Key data points</td><td>Sitara first-to-second conversion 7% (16 Sep RCA; the earlier 24% came from low-intent campaign users). Sitara first-time users since 16 Jul: 1,064; 151 first recharges, 22 third recharges (Yash Deep, 23 Sep). Free coins ≈5% of monthly spend. August WATI win-back test did worse than its control.</td></tr>
+<tr><td>Competitor teardown (AT)</td><td>Tested twice, 24 Sep. Details collected before the chat and auto-sent as the first message. "Finish this chat for a surprise gift" banner, then "You won 100% cashback" + Recharge. A fast ~2-minute script: moon sign → dasha → hopeful lines → "I have to tell you other things too, we will have to discuss in detail". A continue card at a discounted ₹26/min (was ₹32). No AI label. Uses fear probes ("does the ill will of others impact you?").</td></tr>
+<tr><td>User flow</td><td>WATI message → web AI chat (2 min) → hand-off card over the chat in the last 10 seconds → app opens into random connect → in-session recharge → human astrologer.</td></tr>
+<tr><td>Analytics</td><td>Event list in Product Requirements; full funnel per prompt version.</td></tr>
+<tr><td>Design / wireframes</td><td>V1 mockups (4 screens) in the Designs section.</td></tr>
+</tbody>
+</table>
+
+<h2>Solution overview</h2>
+<table data-layout="wide">
+<thead><tr><th>Step</th><th>What the user sees</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td><strong>1. WATI message</strong></td><td>A personal message using their last chat topic: "Namaste Rafeeq ji, pichli baar aapne shaadi ke baare mein poocha tha. Is mahine aapki kundli mein kuch achhe sanket hain." Button: "Free reading dekhein" (a link unique to each user).</td><td>Personal, not a mass blast. Avoids repeating the August result.</td></tr>
+<tr><td><strong>2. Web AI chat (2 min)</strong></td><td>A chat page in Astrolokal's look. The user's details are auto-sent as the first message. Kundli chart, then moon sign and current dasha (real computed facts), then a positive hint on their topic and one tease: "ek graha ka prabhav hai, use dhyaan se dekhna hoga". A top strip says "Chat poori karein, surprise gift paayein".</td><td>Enough value to feel personal, not enough to replace the astrologer. Minimal, like AT, but grounded in their own chart and last chat.</td></tr>
+<tr><td><strong>3. Hand-off (last 10 sec)</strong></td><td>The strip changes to "Badhai ho! Aapne 100% cashback jeeta". An AT-style card slides over the chat: "Rafeeq ji, graha ke prabhav ka upay jaaniye pandit ji se. Pehle recharge par 100% cashback". CTA: "Pandit ji se upay jaaniye · 0:07". The countdown is the real remaining free time.</td><td>No extra screen and no extra step. The urgency is real, not fake availability.</td></tr>
+<tr><td><strong>4. App: real astrologer</strong></td><td>One tap opens the Astrolokal app into random connect (deferred deep link if the app is uninstalled). A low balance shows the in-session recharge. V2: details plus free reading are auto-sent as the first message.</td><td>Revenue comes from the human astrologer. Uses flows that already exist.</td></tr>
+</tbody>
+</table>
+<h3>How it's built</h3>
+<ul>
+<li><strong>Web chat</strong> (Next.js on Vercel, company account, on a company subdomain such as <code>chat.astrolokal.com</code>), built and run by Rafeeq.</li>
+<li><strong>Chat engine</strong> with a single <code>config.yaml</code> that controls everything without code changes:
+  <ul>
+  <li>timing</li>
+  <li>persona and header label</li>
+  <li>message length</li>
+  <li>how much the AI reveals</li>
+  <li>scripted opening, hooks and closing</li>
+  <li>topics</li>
+  <li>guardrails</li>
+  </ul>
+  Every message is logged with the prompt version and a config hash.</li>
+<li><strong>Opening and closing lines are scripted</strong>, not generated: instant and never wrong. The AI only answers what the user types in between.</li>
+<li><strong>Every AI reply is checked before it's shown.</strong>
+  <ul>
+  <li><strong>Dropped:</strong> dates or timing, remedies, money, mentions of AI, fear, guarantees, filler, and any rashi or dasha that isn't the user's.</li>
+  <li><strong>If nothing passes:</strong> one retry, then a safe fallback line.</li>
+  <li><strong>If the model is slow (&gt;6 s) or errors:</strong> the fallback line.</li>
+  </ul></li>
+<li><strong>Safety routes before the AI:</strong>
+  <ul>
+  <li>distress → Tele-MANAS 14416 helpline, the chat closes, <strong>no sales card</strong></li>
+  <li>"are you AI?" → a fixed honest line</li>
+  <li>health questions → "see a doctor"</li>
+  </ul></li>
+<li><strong>No personal data in URLs.</strong> The WATI link carries a random token, and the server maps it to the user.</li>
+</ul>
+
+<h2>📊 Goals &amp; Metrics</h2>
+<table>
+<thead><tr><th data-background="#E3FCEF">Goal</th><th data-background="#E3FCEF">Metric</th></tr></thead>
+<tbody>
+<tr><td><strong>Primary:</strong> win back lapsed payers</td><td><strong>Recharge within 7 days, per targeted user</strong>, pilot vs holdout (everyone sent the message, not just those who opened it)</td></tr>
+<tr><td>Revenue, not just activity</td><td>Revenue per targeted user at day 14, pilot vs holdout</td></tr>
+<tr><td>Funnel health</td><td>Link opened % → first message % → hand-off card shown % → CTA tapped % → connected to an astrologer % → recharged %</td></tr>
+<tr><td>Quality of the hand-off</td><td>Talk time with the human astrologer after the hand-off; share of those chats where the astrologer asks for birth details again (V1 read)</td></tr>
+<tr><td>Cost</td><td>Cost per recharge = (WATI send + LLM + cashback) ÷ recharges. Compare with the free-coin cost per reactivated user today.</td></tr>
+<tr><td data-background="#FFEBE6"><strong>Guardrails</strong></td><td data-background="#FFEBE6">WhatsApp blocks and opt-outs · refund and complaint rate on hand-off chats · guard drops and fallback rate per version (quality) · crisis-route count (safety) · the holdout doesn't do worse than the pilot on revenue (the August failure)</td></tr>
+</tbody>
+</table>
+
+<h2>🎨 Designs</h2>
+<ul>
+<li><strong>Notes:</strong> the look is deliberately close to AT (familiar to the user, not fancy) in Astrolokal colours: orange #F45722, purple #4E1B96, font Onest.</li>
+<li><strong>Screens:</strong> (1) WATI message, (2) web AI chat with the surprise-gift strip, (3) hand-off overlay with the countdown CTA, (4) the app with a real astrologer and in-session recharge.</li>
+<li><strong>Mockups:</strong> <em>attach ai-free-chat-mockups.png and screen3-handoff.png here</em>.</li>
+</ul>
+
+<h2>🗒 Product Requirements</h2>
+<table data-layout="full-width" data-width="1800">
+<thead><tr><th>User story</th><th>Requirements</th><th>Jira</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>As a lapsed payer, I get a WhatsApp message that feels meant for me</td><td>
+<ul>
+<li>WATI marketing template per language, with a dynamic URL button (<code>…/c/{{1}}</code>)</li>
+<li>Hook chosen by <code>last_topic</code> (shaadi / naukri / paisa / parivaar / pyaar), with a generic hook if unknown</li>
+<li>Token is random and single-user. Never a phone number or user ID in the URL</li>
+</ul></td><td>—</td><td>Template needs Meta approval (1–2 days). Submit by 26 Sep.</td></tr>
+<tr><td>As a user, the chat opens instantly and already knows me</td><td>
+<ul>
+<li>Page loads in &lt;2 s on 4G; works inside WhatsApp's in-app browser</li>
+<li>Birth details auto-sent as the first user message</li>
+<li>Scripted opening: greeting → rashi + dasha → topic hook</li>
+<li>Expired, used or invalid token → friendly screen with the same app CTA (no second free chat)</li>
+</ul></td><td>—</td><td>One free chat per user for the pilot</td></tr>
+<tr><td>As a user, I get a short reading that feels personal</td><td>
+<ul>
+<li>Replies: max 2 messages, max 12 words each; at most 1 question in the whole chat</li>
+<li>Only chart facts supplied by the wrapper; no dates, remedies, money, fear or guarantees (enforced by the reply guard)</li>
+<li>Top strip: "Chat poori karein, surprise gift paayein"</li>
+<li>If asked "are you AI?": fixed honest line, then carry on</li>
+</ul></td><td>—</td><td>Prompt and all rules live in <code>config.yaml</code></td></tr>
+<tr><td>As a user, at the end I'm moved to a real astrologer without friction</td><td>
+<ul>
+<li>Free time: 120 s, <strong>tracked on the server</strong> (the user can't extend it by refreshing)</li>
+<li>At 15 s left: scripted closing lines. At 10 s left: strip changes to the cashback reveal; the hand-off card slides over the chat with the countdown CTA</li>
+<li>Tapping the CTA opens the deferred deep link into random connect immediately (no waiting for 0)</li>
+<li>At 0: input locks, the card stays, timer removed. No auto-redirect</li>
+<li>Card hidden if the chat went through the crisis route</li>
+</ul></td><td>—</td><td>Auto-opening the app from a timer is blocked by browsers/in-app views, so it's not built</td></tr>
+<tr><td>As a user, I can recharge and talk to the astrologer in the app</td><td>
+<ul>
+<li>Random connect via existing deep link, with UTM tags <code>utm_source=wati&amp;utm_campaign=ai_free_chat&amp;utm_content={prompt_version}</code></li>
+<li>In-session recharge for low balance (existing)</li>
+<li>100% cashback on first recharge for pilot users, with a <strong>real expiry enforced by the backend</strong></li>
+<li>V2: details plus free reading auto-sent as the first message</li>
+</ul></td><td>—</td><td>Cashback budget comes from free coins (Tejaswi)</td></tr>
+<tr><td>As the PM, I can change the experience daily and trace every result</td><td>
+<ul>
+<li>All knobs in <code>config.yaml</code>; <code>npm run check</code> blocks broken configs; <code>npm test</code> (19 checks) must pass before deploy</li>
+<li><code>prompt_version</code> bumped on every change; logged per message with a config hash</li>
+<li>Read 20 chats per version before judging</li>
+</ul></td><td>—</td><td>Versions are compared over time against the holdout. No parallel arms on the fixed cohort.</td></tr>
+</tbody>
+</table>
+<p><strong>Analytics events (web):</strong> <code>link_opened</code>, <code>chat_started</code>, <code>user_message_sent</code>, <code>ai_reply_shown</code> (with flags, fallback, latency), <code>handoff_card_shown</code>, <code>cta_tapped</code>, <code>chat_ended</code>, <code>crisis_routed</code>. Each carries token, prompt_version, config_hash and seconds_left.</p>
+<p><strong>Joined from Astrolokal data:</strong> app open via deep link, random-connect started, recharge amount and time, talk time, 7-day recharge and 14-day revenue, for both pilot and holdout.</p>
+
+<h2>🧪 Experiment or A/B Testing Setup</h2>
+<ul>
+<li><strong>Cohort:</strong> about 1,200 lapsed payers: ≥1 recharge, no booking in 14–60 days, birth details on file, app still installed (from MoEngage). Hindi/Hinglish first.</li>
+<li><strong>Split:</strong> random 50/50 when the list is built. <strong>Pilot</strong> gets the WATI message. <strong>Holdout</strong> gets nothing. Every pilot user gets the same experience.</li>
+<li><strong>Size:</strong> ~600 per side can detect a move from about 4% to 8% in 7-day recharge. The 4% baseline is an assumption; analytics to confirm, and resize if it's off.</li>
+<li><strong>Iteration:</strong> change one thing per version (hook, reveal level, timing, strip copy), bump the version, and compare versions over time against the holdout.</li>
+<li><strong>Stop rule:</strong> no lift at 2 weeks → change the hook. Still none after 2 versions → stop.</li>
+</ul>
+<h3>Todos</h3>
+<ul data-type="task-list">
+<li data-type="task-item"><input type="checkbox"> Analytics: lapsed-payer list + current 7-day recharge baseline for this segment</li>
+<li data-type="task-item"><input type="checkbox"> Analytics: classify each user's last consult into a topic (batch, one-time)</li>
+<li data-type="task-item"><input type="checkbox"> Omkar wrapper: compute moon sign, mahadasha and antardasha for every user on the list</li>
+<li data-type="task-item"><input type="checkbox"> Random 50/50 split, stored before any message is sent</li>
+<li data-type="task-item"><input type="checkbox"> Dashboard: funnel + 7-day recharge + 14-day revenue, pilot vs holdout, by prompt_version</li>
+</ul>
+
+<h2>Go-To-Market strategy</h2>
+<ul>
+<li>No public launch. A targeted WATI send to the pilot cohort only.</li>
+<li>Send in the evening (6–9 pm IST), when consults peak. Stagger over 2 days so the first 100 chats can be read before the rest go out.</li>
+<li>Astrologers: brief the top random-connect astrologers that some users will arrive from a free AI reading, so the first minute goes on the user's question and not on starting over.</li>
+</ul>
+
+<h2>✔ Non-product requirements or Dependencies</h2>
+<table>
+<thead><tr><th>Requirement / dependency</th><th>POC</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Random connect from a deep link; wallet / in-session recharge; deferred deep links for uninstalled users</td><td>Yatharth</td><td><span data-type="status" data-color="green">CONFIRMED</span></td></tr>
+<tr><td>Can the deep link pre-fill the first message? Does random connect already share birth details with the astrologer?</td><td>Yatharth</td><td><span data-type="status" data-color="yellow">ASKED</span></td></tr>
+<tr><td>100% first-recharge cashback for pilot users, with backend-enforced expiry; budget from free coins</td><td>Tejaswi</td><td><span data-type="status" data-color="neutral">TO-DO</span></td></tr>
+<tr><td>Lapsed-payer list, baseline, last-topic classification</td><td>Analytics (Yash Deep)</td><td><span data-type="status" data-color="neutral">TO-DO</span></td></tr>
+<tr><td>Chart facts (moon sign, dasha) for the list</td><td>Omkar wrapper owner (Hema)</td><td><span data-type="status" data-color="neutral">TO-DO</span></td></tr>
+<tr><td>WATI marketing template with a dynamic URL button, Meta approval; confirm business-specific AI chat is allowed on Meta's policy</td><td>Rafeeq + WATI</td><td><span data-type="status" data-color="neutral">TO-DO</span></td></tr>
+<tr><td>Company Vercel team, <code>chat.astrolokal.com</code> subdomain, database</td><td>DevOps</td><td><span data-type="status" data-color="neutral">TO-DO</span></td></tr>
+<tr><td>Data handling OK: birth details + first name held on the web app for the pilot only, deleted after</td><td>Vandana / Yatharth</td><td><span data-type="status" data-color="neutral">TO-DO</span></td></tr>
+<tr><td>AI label in the chat header ("AI Astro Sahayak" or none)</td><td>Vandana + legal (Dhruv / Shruti)</td><td><span data-type="status" data-color="yellow">OPEN</span></td></tr>
+</tbody>
+</table>
+
+<h2>Risks</h2>
+<table>
+<thead><tr><th data-background="#FFEBE6">Type</th><th data-background="#FFEBE6">Risk</th><th data-background="#FFEBE6">Mitigation</th></tr></thead>
+<tbody>
+<tr><td>Value</td><td>The hook reads as generic and repeats the August WhatsApp result (worse than doing nothing)</td><td>Hook built from the user's last topic and their own chart; holdout required; stop rule</td></tr>
+<tr><td>Value</td><td>The reading is too thin and users feel it's a script (AT's top complaint)</td><td>Personalisation is the edge. Try a version with a time window if the minimal one underperforms</td></tr>
+<tr><td>Usability</td><td>The human astrologer asks for birth details again right after the user pays</td><td>Check whether random connect shares details; V2 auto-sent first message; astrologer briefing</td></tr>
+<tr><td>Usability</td><td>Random connect fails or queues (a known connectivity issue)</td><td>No "no wait" promise in the UI; track connect success; pause sends if it drops</td></tr>
+<tr><td>Feasibility</td><td><code>last_topic</code> not available for most users, so most get the generic hook</td><td>One-time classification batch before the send; measure the share with a topic</td></tr>
+<tr><td>Business</td><td>Cashback cost exceeds the revenue it brings</td><td>Cost per recharge metric; cashback only on the first recharge, with a real expiry</td></tr>
+<tr><td>Misc: trust / legal</td><td>An AI presented as an astrologer conflicts with the site's "100% human-led" promise</td><td>AI never claims to be human; honest line if asked; the label decision is taken explicitly with Vandana and legal</td></tr>
+<tr><td>Misc: safety</td><td>A distressed user reaches a sales flow</td><td>Crisis route to Tele-MANAS 14416; sales card suppressed</td></tr>
+</tbody>
+</table>
+
+<h2>❓ Open questions</h2>
+<table>
+<thead><tr><th>Question</th><th>Answer</th></tr></thead>
+<tbody>
+<tr><td>Show "AI Astro Sahayak" in the header, or no label?</td><td>Open (Vandana + legal)</td></tr>
+<tr><td>What is the 7-day recharge baseline for this segment?</td><td>Analytics. It decides whether 1,200 users is enough</td></tr>
+<tr><td>Does random connect require a minimum balance to start, or does it prompt a recharge in-session?</td><td>Test with a ₹0 account before launch</td></tr>
+<tr><td>Cashback window: 15 minutes from the end of the chat, or the same day?</td><td>Tejaswi + Rafeeq</td></tr>
+<tr><td>Languages after Hindi/Hinglish: Telugu, Tamil, Malayalam, Kannada?</td><td>After the first read</td></tr>
+</tbody>
+</table>
+
+<h2>⚠ Out of scope / Next iterations</h2>
+<table>
+<thead><tr><th>Feature</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>In-app AI free chat (feed, busy-astrologer fallback)</td><td>Only if the pilot shows lift. Then it's Astrolokal dev's build, not the web app's.</td></tr>
+<tr><td>Auto-sent first message with the reading</td><td>V2, depends on deep-link pre-fill</td></tr>
+<tr><td>Named astrologer hand-off</td><td>No. Random connect only; never promise a specific person</td></tr>
+<tr><td>Auto-opening the app on a timer</td><td>No. Blocked by browsers, and it inflates taps</td></tr>
+<tr><td>More than one free chat per user</td><td>No for the pilot; avoids training users to wait for free</td></tr>
+<tr><td>New users (never paid) as a cohort</td><td>Later, as a separate cohort with its own baseline</td></tr>
+</tbody>
+</table>
+
+<h2>💡 Post-release Insights &amp; Learnings</h2>
+<p>To be filled after the first read (<time datetime="2026-10-07">7 Oct 2026</time>).</p>
+
+<h2>📜 PM Notes</h2>
+<h3>PM Todos</h3>
+<ul data-type="task-list">
+<li data-type="task-item"><input type="checkbox"> Share plan + ETA with Vandana (thread, 24 Sep)</li>
+<li data-type="task-item"><input type="checkbox"> Yatharth: pre-fill + birth-details question</li>
+<li data-type="task-item"><input type="checkbox"> Tejaswi: cashback budget + expiry</li>
+<li data-type="task-item"><input type="checkbox"> Yash Deep: list, baseline, topic classification</li>
+<li data-type="task-item"><input type="checkbox"> Hema: chart facts for the list</li>
+<li data-type="task-item"><input type="checkbox"> Submit the WATI template</li>
+<li data-type="task-item"><input type="checkbox"> Build the web chat on top of the engine; QA on Android + iOS inside WhatsApp</li>
+<li data-type="task-item"><input type="checkbox"> Test random connect with a ₹0 account</li>
+</ul>
+<h3>Decisions so far</h3>
+<ul data-type="decision-list">
+<li data-type="decision-item" data-state="DECIDED">Web chat owned by Rafeeq, shared via WATI; no Astrolokal dev work (24 Sep)</li>
+<li data-type="decision-item" data-state="DECIDED">Minimal reading like AT, grounded in the user's own chart and last topic (24 Sep)</li>
+<li data-type="decision-item" data-state="DECIDED">Hand-off to a real astrologer via random connect, with a card over the chat and a countdown of the real remaining time (24 Sep)</li>
+<li data-type="decision-item" data-state="DECIDED">Fixed cohort + list-level holdout; compare versions over time, no parallel arms (24 Sep)</li>
+<li data-type="decision-item" data-state="UNDECIDED">AI label in the header</li>
+</ul>
+
+<hr>
+<p style="font-size: 14px"><strong>Document status:</strong> <span data-type="status" data-color="yellow">DRAFT</span> <span data-type="status" data-color="blue">WORK-IN-PROGRESS</span> <span data-type="status" data-color="green">COMPLETE</span> <span data-type="status" data-color="red">ABANDONED</span> <span data-type="status" data-color="neutral">ON-HOLD</span> · <strong>Product status:</strong> <span data-type="status" data-color="neutral">TO-DO</span> <span data-type="status" data-color="blue">IMPLEMENTATION</span> <span data-type="status" data-color="green">RELEASED</span> <span data-type="status" data-color="red">ABANDONED</span> <span data-type="status" data-color="neutral">ON-HOLD</span></p>

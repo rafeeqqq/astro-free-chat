@@ -1,0 +1,27 @@
+:root {
+  color-scheme: light;
+  --orange: #f45722;
+  --orange-dark: #b8390f;
+  --orange-wash: #fff1e6;
+  --purple: #4e1b96;
+  --ink: #262626;
+  --ink-2: #575757;
+  --ink-3: #8b8b8b;
+  --line: #eadfd5;
+  --ground: #faf6f2;
+  --win-bg: #e9f7ef;
+  --win-ink: #14532d;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; margin: 0; }
+
+body {
+  background: #efe8e1;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+button, input { font: inherit; }

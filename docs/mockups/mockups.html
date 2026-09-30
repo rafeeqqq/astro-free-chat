@@ -1,0 +1,130 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0}
+body{font-family:"Onest",system-ui,sans-serif;background:#FBF7F3;color:#262626;width:1480px;padding:44px 48px 40px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:30px}
+.top h1{font-size:30px;font-weight:700;letter-spacing:-.02em}
+.top p{color:#6b625b;font-size:16px;margin-top:6px}
+.brand{font-weight:700;color:#F45722;font-size:18px}
+.row{display:flex;gap:34px;align-items:flex-start}
+.step{width:320px}
+.num{display:inline-flex;width:26px;height:26px;border-radius:50%;background:#F45722;color:#fff;font-weight:600;font-size:13px;align-items:center;justify-content:center;margin-right:8px}
+.cap{margin-top:16px;font-size:14px;color:#575757;line-height:1.45}
+.cap b{display:flex;align-items:center;color:#262626;font-size:16px;margin-bottom:6px}
+.phone{width:320px;height:660px;border-radius:40px;border:9px solid #1d1a18;background:#fff;overflow:hidden;display:flex;flex-direction:column;font-size:14px;position:relative}
+.sb{height:26px;display:flex;justify-content:space-between;align-items:center;padding:0 20px;font-size:11px;font-weight:600}
+.bar{padding:10px 14px;display:flex;align-items:center;gap:10px;color:#fff}
+.wa{background:#075E54}.al{background:#F45722}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;flex:none}
+.nm{font-weight:600;line-height:1.2;font-size:15px}.nm small{display:block;font-weight:400;font-size:11.5px;opacity:.88}
+.pane{flex:1;padding:12px;display:flex;flex-direction:column;gap:7px;overflow:hidden}
+.pwa{background:#ECE5DD}.pal{background:#FAF6F2}
+.b{max-width:84%;padding:8px 11px;border-radius:12px;line-height:1.4}
+.ai{background:#FFEBDD;color:#5A2410;align-self:flex-start;border-top-left-radius:3px}
+.usr{background:#4E1B96;color:#fff;align-self:flex-end;border-top-right-radius:3px}
+.astro{background:#fff;border:1px solid #EADFD5;align-self:flex-start;border-top-left-radius:3px}
+.tpl{background:#fff;border-radius:12px;overflow:hidden;max-width:92%}
+.tpl .img{height:120px;background:#F45722;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:17px;text-align:center;padding:12px;gap:6px}
+.tpl .img span{font-weight:400;font-size:12px;opacity:.9}
+.tpl .tx{padding:10px 12px;line-height:1.45}
+.tpl .btn{border-top:1px solid #eee;padding:11px;text-align:center;color:#0a7cff;font-weight:500}
+.time{font-size:10px;color:#8b8b8b;text-align:right;padding:0 12px 8px}
+.url{background:#f1f1f1;margin:4px 12px 6px;border-radius:10px;padding:7px 12px;font-size:12px;color:#444;display:flex;gap:6px;align-items:center}
+.strip{background:#FFF1E6;color:#9A3412;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;font-weight:500}
+.strip span:last-child{background:#F45722;color:#fff;border-radius:8px;padding:5px 11px;font-weight:600}
+.timer{margin-left:auto;background:#fff;color:#F45722;border-radius:12px;padding:3px 9px;font-size:12px;font-weight:600}
+.kundli{height:84px;border:1px solid #F3C17B;border-radius:9px;background:#fff;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr 1fr;overflow:hidden}
+.kundli div{border:.5px solid #F3C17B}
+.cta{background:#F45722;color:#fff;border-radius:12px;padding:13px;text-align:center;font-weight:600;font-size:15px}
+.card{background:#fff;border:1px solid #EADFD5;border-radius:14px;padding:14px}
+.lbl{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9A3412;font-weight:600}
+.copy{margin-top:10px;border:1px solid #F45722;color:#F45722;border-radius:9px;padding:8px;text-align:center;font-weight:600;font-size:13px}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:16px 16px 20px;box-shadow:0 -6px 24px rgba(0,0,0,.12);display:flex;flex-direction:column;gap:10px}
+.packs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.pk{border:1px solid #EADFD5;border-radius:10px;padding:9px 4px;text-align:center;font-weight:600}
+.pk small{display:block;font-weight:500;font-size:10.5px;color:#1F7A4D;margin-top:2px}
+.pk.on{border-color:#F45722;background:#FFF6F0}
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.28)}
+.sys{align-self:center;background:#FFF6D6;color:#6b5200;border-radius:8px;padding:4px 10px;font-size:11px}
+.win{background:#E9F7EF;color:#14532D}
+.foot{margin-top:28px;font-size:13px;color:#8e8279}
+</style></head><body>
+<div class="top"><div><h1>AI free chat → real astrologer</h1><p>Pilot flow · WATI message → web AI reading → app random connect · no Astrolokal dev needed</p></div><div class="brand">astrolokal</div></div>
+<div class="row">
+
+<div class="step"><div class="phone">
+ <div class="sb"><span>2:28</span><span>5G ▮</span></div>
+ <div class="bar wa"><div class="av" style="background:#F45722;color:#fff">A</div><div class="nm">Astrolokal<small>Business account</small></div></div>
+ <div class="pane pwa">
+  <div class="tpl">
+   <div class="img">Aapki kundli mein is mahine kuch khaas hai<span>Free reading · 2 minute</span></div>
+   <div class="tx">Namaste Rohan ji, pichli baar aapne <b>shaadi</b> ke baare mein poocha tha. Is mahine aapki kundli mein kuch achhe sanket hain. Apni free reading dekhiye.</div>
+   <div class="time">2:21 PM</div>
+   <div class="btn">↗ Free reading dekhein</div>
+  </div>
+ </div>
+</div><div class="cap"><b><span class="num">1</span>Personal WATI message</b>Hook from the user's last chat topic. A link unique to each user opens the web chat, with their kundli already loaded.</div></div>
+
+<div class="step"><div class="phone">
+ <div class="sb"><span>2:28</span><span>5G ▮</span></div>
+ <div class="url">🔒 chat.astrolokal.com</div>
+ <div class="bar al"><div class="av" style="background:#FFBF6E;color:#5A2410">O</div><div class="nm">Omkar ji<small>AI Astro Sahayak</small></div><span class="timer">1:24 free</span></div>
+ <div class="strip" style="justify-content:center">🎁 Chat poori karein, surprise gift paayein</div>
+ <div class="pane pal">
+  <div class="b usr" style="font-size:12.5px">Meri details:<br>Rohan · Male · 5 Nov 2002<br>3:10 AM · Guntur, AP</div>
+  <div class="sys">Omkar ji ne aapki kundli dekh li hai</div>
+  <div class="b ai" style="padding:5px;width:70%"><svg viewBox="0 0 200 110" style="display:block;width:100%;height:78px;background:#fff;border-radius:8px"><g fill="none" stroke="#E8A64F" stroke-width="1.2"><rect x="45" y="5" width="110" height="100"/><line x1="45" y1="5" x2="155" y2="105"/><line x1="155" y1="5" x2="45" y2="105"/><polygon points="100,5 155,55 100,105 45,55"/></g><g font-family="Onest" font-size="8" fill="#9A3412"><text x="94" y="40">Lg</text><text x="120" y="58">Mo</text><text x="72" y="84">Sa</text><text x="128" y="94">Ve</text><text x="58" y="20">Ju</text></g><text x="100" y="58" text-anchor="middle" font-size="6.5" fill="#B08968" font-family="Onest">Aapki kundli</text></svg></div>
+  <div class="b ai">Aapki Chandra rashi Tula hai, abhi Shani ki dasha chal rahi hai</div>
+  <div class="b usr">shaadi kab hogi?</div>
+  <div class="b ai">Shaadi ka yog aapki kundli mein achha hai</div>
+  <div class="b ai">Par ek graha ka prabhav hai, use dhyaan se dekhna hoga</div>
+ </div>
+</div><div class="cap"><b><span class="num">2</span>AI reading on the web</b>Their details come pre-filled as the first message, and a "finish the chat for a surprise gift" strip keeps them to the end. Chart facts, then a short positive hint. Minimal like AT, no dates. The upay is held back.</div></div>
+
+<div class="step"><div class="phone" id="s3">
+ <div class="sb"><span>2:31</span><span>5G ▮</span></div>
+ <div class="url">🔒 chat.astrolokal.com</div>
+ <div class="bar al"><div class="av" style="background:#FFBF6E;color:#5A2410">O</div><div class="nm">Omkar ji<small>AI Astro Sahayak</small></div><span class="timer">0:07 free</span></div>
+ <div class="strip win" style="justify-content:center">🎉 Badhai ho! Aapne 100% cashback jeeta</div>
+ <div class="pane pal">
+  <div class="b usr">shaadi kab hogi?</div>
+  <div class="b ai">Shaadi ka yog aapki kundli mein achha hai</div>
+  <div class="b ai">Par ek graha ka prabhav hai, use dhyaan se dekhna hoga</div>
+  <div class="b ai">Rohan ji, aapko aur bhi baatein batani hain</div>
+  <div class="b ai">Upay pandit ji detail mein batayenge</div>
+ </div>
+ <div style="position:absolute;left:10px;right:10px;bottom:12px;background:#FFF3E8;border:1px solid #F7C9A8;border-radius:16px;padding:12px;box-shadow:0 -4px 18px rgba(0,0,0,.10)">
+  <div style="display:flex;gap:10px;align-items:flex-start">
+   <div class="av" style="background:#4E1B96;color:#fff;width:38px;height:38px">🙏</div>
+   <div style="font-size:13px;line-height:1.4;color:#3a2a20">Rohan ji, <b>graha ke prabhav ka upay</b> jaaniye pandit ji se. Pehle recharge par <b style="color:#B8390F">100% cashback</b></div>
+  </div>
+  <div style="margin-top:10px;position:relative;border-radius:12px;overflow:hidden;background:#F45722">
+   <div style="position:absolute;inset:0 30% 0 0;background:rgba(0,0,0,.10)"></div>
+   <div style="position:relative;display:flex;align-items:center;justify-content:space-between;padding:13px 14px;color:#fff;font-weight:700;font-size:14.5px">
+    <span style="white-space:nowrap">Pandit ji se upay jaaniye</span><span style="background:rgba(255,255,255,.22);border-radius:8px;padding:2px 8px;font-size:13px;font-variant-numeric:tabular-nums">0:07</span>
+   </div>
+  </div>
+  <div style="text-align:center;font-size:10.5px;color:#8b7b70;margin-top:6px">Kundli aur reading pandit ji ko apne aap mil jaayegi</div>
+ </div>
+</div><div class="cap"><b><span class="num">3</span>Hand-off overlay (last 10 sec)</b>With 10 real seconds of free chat left, an AT-style card slides over the chat. The button fills as the free time runs out. At 0 the chat ends and the card stays. One tap opens random connect.</div></div>
+
+<div class="step"><div class="phone">
+ <div class="sb"><span>2:32</span><span>5G ▮</span></div>
+ <div class="bar al"><span style="font-size:18px">←</span><div class="av" style="background:#4E1B96;color:#fff">S</div><div class="nm">Pandit Suresh ji<small>Vedic · 4.8 · ₹24/min</small></div></div>
+ <div class="pane pal">
+  <div class="b usr" style="font-size:12.5px">Namaste ji, meri details:<br>Rohan · Male · 5 Nov 2002 · 3:10 AM · Guntur<br><b>Free reading:</b> Tula rashi, Shani dasha. Shaadi ka yog achha, ek graha ka prabhav hai. Upay jaanna hai</div>
+  <div class="b astro">Namaste Rohan ji, main aapki kundli dekh raha hoon…</div>
+ </div>
+ <div class="dim"></div>
+ <div class="sheet">
+  <div style="font-weight:700;font-size:16px">Chat jaari rakhne ke liye recharge karein</div>
+  <div style="color:#575757;font-size:13px">Balance kam hai · pandit ji aapka intezaar kar rahe hain</div>
+  <div class="packs"><div class="pk">₹50<small>100% cashback</small></div><div class="pk on">₹100<small>100% cashback</small></div><div class="pk">₹200<small>100% cashback</small></div></div>
+  <div class="cta">₹100 recharge karein</div>
+ </div>
+</div><div class="cap"><b><span class="num">4</span>Real astrologer in the app</b>Random connect. Their details and free reading are auto-sent as the first message (AT's pattern; V2 if the link can't pre-fill yet). Low balance shows a recharge prompt inside the session.</div></div>
+
+</div>
+<div class="foot">Draft mockups · Astrolokal AI Astro pilot · 24 Sep 2026 · pilot: ~1,200 lapsed payers, 50/50 holdout, metric = recharge within 7 days</div>
+</body></html>

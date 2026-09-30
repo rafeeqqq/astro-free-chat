@@ -1,0 +1,15 @@
+# Prompt / config versions
+
+Every change to `config/` bumps `experiment.prompt_version`. `/admin` shows each version separately.
+
+| Version | Date | What changed |
+|---|---|---|
+| free_chat_v1.8 | 30 Sep 2026 | Missing data never blocks a chat: no name → "Namaste ji" and "aap"; no gender/place → left out; no birth time → rashi/dasha only stated when certain (no kundli card if the rashi isn't). Prompt tightened (facts block built from known data only). One question per reply. Team form removed |
+| free_chat_v1.7 | 29 Sep 2026 | The first answer always answers the question (answer + the planet behind it). Wrong-dasha guard catches every phrasing, and mahadasha vs antardasha mix-ups |
+| free_chat_v1.6 | 29 Sep 2026 | CTA "Talk to astrologer": the tap connects to a different, human astrologer, so no "continue" |
+| free_chat_v1.5 | 29 Sep 2026 | Curiosity hook on the card: "…sabse zaroori baat abhi batani baaki hai 👀" |
+| free_chat_v1.4 | 29 Sep 2026 | Simpler card hook; "Talk to our top astrologers" under the CTA; countdown ring and confetti |
+| free_chat_v1.3 | 29 Sep 2026 | Vandana's feedback: cohorts (lapsed / low / zero balance), CTA link by wallet balance, attribution on every tap, no "pandit ji" on the CTA |
+| free_chat_v1.2 | 25 Sep 2026 | Answer the first question, then small personal insights, one open thread at the end. Omkar speaks after 25 s of silence. 2–3 bubbles. No "pandit ji" inside the chat |
+| free_chat_v1.1 | 25 Sep 2026 | "Seen, not solved" (rejected: nothing got answered) |
+| free_chat_v1.0 | 24 Sep 2026 | First internal team test |

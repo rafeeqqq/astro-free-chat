@@ -1,0 +1,112 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Astrolokal AI free chat — the ONE file you edit.
+# Rules: change one thing at a time, bump prompt_version every time, run `npm test`.
+# Every session logs prompt_version + arm + a hash of this file, so results stay traceable.
+# ─────────────────────────────────────────────────────────────────────────────
+
+experiment:
+  id: astro_free_chat_pilot_v1
+  prompt_version: free_chat_v0.4
+  # The pilot cohort is FIXED and everyone in it gets the same experience (one arm, weight 100).
+  # The control is the holdout, which never gets the WATI message (split when the list is built).
+  # To try something new: change the settings below, bump prompt_version, and compare versions over time.
+  # Parallel arms are still supported (weights must add up to 100), but don't use them on a fixed cohort.
+  arms:
+    - id: pilot
+      weight: 100
+      insight_level: minimal      # minimal | specific (see insight_levels)
+      allow: []                   # guard rules this arm may break, e.g. [date_or_year, relative_time] for specific
+
+timing:
+  free_seconds: 120                 # length of the free chat
+  closing_at_seconds_left: 15       # AI sends the scripted closing lines
+  handoff_card_at_seconds_left: 10  # app shows the pandit ji card with the countdown CTA
+  llm_timeout_ms: 6000              # slower than this → send fallback_reply instead
+
+model:
+  name: gemini-flash-lite           # whatever the wrapper uses; logged per session
+  temperature: 0.6
+  max_output_tokens: 120
+
+persona:
+  name: "Omkar ji"
+  header_label: "AI Astro Sahayak"  # shown under the name in the chat header. "" hides it (decide with Vandana)
+  voice: >-
+    A warm, experienced Vedic astrologer. Simple everyday words, respectful "aap",
+    calls the user "{name} ji". Calm and confident, never pushy.
+  disclosure_line: "Main Astrolokal ka Astro Sahayak hoon. Upay hamare anubhavi pandit ji batayenge."
+
+style:
+  max_bubbles: 2
+  max_words_per_bubble: 12
+  question_budget: 1                # max questions the AI may ask in the whole chat
+  separator: "||"
+
+# How much the AI gives away. The arm picks one.
+insight_levels:
+  minimal: >-
+    Keep it a TASTE, not a reading. Give a short positive direction on their topic and one tease:
+    a planet's influence that "needs a careful look". Never give dates, years, time windows,
+    remedies or detailed predictions.
+  specific: >-
+    Give ONE specific, chart-grounded point on their topic (you may use the computed window
+    {window_for_topic} if it is not empty), then one obstacle, then the tease that the upay
+    needs a detailed look. Never give remedies, mantras, gemstones or exact dates.
+
+# Lines the ENGINE sends word-for-word (no AI). Edit freely; {variables} are filled in.
+# Available: {name} {moon_sign} {mahadasha} {antardasha} {last_topic_label} {persona_name} {monthly_line}
+scripted:
+  opening:
+    - "Namaste {name} ji, aapki kundli dekh li hai."
+    - "Aapki Chandra rashi {moon_sign} hai, abhi {mahadasha} ki dasha chal rahi hai."
+  topic_hook:                        # 3rd opening bubble, chosen by last_topic
+    shaadi: "Pichli baar aapne shaadi ki baat ki thi. Usme kuch achhe sanket hain."
+    naukri: "Pichli baar aapne naukri ki baat ki thi. Is dasha mein badlav ke sanket hain."
+    paisa: "Pichli baar aapne paise ki baat ki thi. Aane wala samay dhyaan dene layak hai."
+    parivaar: "Pichli baar aapne parivaar ki baat ki thi. Kundli mein kuch zaroori dikh raha hai."
+    pyaar: "Pichli baar aapne pyaar ki baat ki thi. Shukra ki sthiti dilchasp hai."
+    default: "Aap kis baare mein jaanna chahte hain? Shaadi, naukri ya paisa?"
+  closing:
+    - "{name} ji, aapko aur bhi baatein batani hain."
+    - "Upay pandit ji detail mein batayenge."
+  fallback_reply: "Aapki kundli mein yeh dhyaan se dekhne wali baat hai."
+  health_reply: "Sehat ke liye doctor se zaroor milein. Graha ka prabhav pandit ji detail mein batayenge."
+  crisis_reply:                      # sent when a user shows distress; the sales card is NOT shown
+    - "{name} ji, aap akele nahi hain. Aapki baat sunne wale log hain."
+    - "Abhi Tele-MANAS 14416 par call karein, free hai, 24 ghante."
+
+# Optional line for the whole pilot (festival, big transit). "" = off.
+monthly_line: ""
+
+# Everyday words users type → topic. Used when the user names a topic mid-chat.
+topics:
+  shaadi: [shaadi, shadi, marriage, vivah, rishta, wife, husband, biwi, pati, patni]
+  naukri: [naukri, job, career, kaam, business, vyapar, promotion, interview]
+  paisa: [paisa, paise, money, dhan, loan, karz, income]
+  parivaar: [parivaar, family, ghar, maa, papa, bachche, baccha]
+  pyaar: [pyaar, pyar, love, girlfriend, boyfriend, breakup, crush]
+  sehat: [health, sehat, bimari, beemari, hospital, operation, dawai]
+
+# Every AI reply is checked against these. A hit removes that bubble (and logs the reason);
+# if nothing is left, fallback_reply is sent instead.
+guardrails:
+  banned:
+    - { reason: date_or_year, pattern: '\b(19|20)\d{2}\b' }
+    - { reason: date_or_year, pattern: '\b(january|february|march|april|june|july|august|september|october|november|december|janvari|farvari|tareekh|tarikh)\b' }
+    - { reason: relative_time, pattern: '\b(agle|is|do|teen|char|chaar|\d+) (saal|sal|mahine|mahino|hafte|hafton)\b' }
+    - { reason: remedy, pattern: '\b(mantra|jaap|jap|ratna|gemstone|pukhraj|neelam|gomed|moonga|panna|rudraksh\w*|vrat|daan kar\w*|puja karw\w*|havan)\b' }
+    - { reason: money, pattern: '(₹|\brs\.?\s?\d|\brupay\w*|\brecharge\b|\bcashback\b|\bdiscount\b|\boffer\b|\bper minute\b|\bprice\b)' }
+    - { reason: ai_mention, pattern: '\b(ai|a\.i\.|bot|chatbot|language model|gemini|gpt|openai|prompt)\b' }
+    - { reason: fear, pattern: '\b(nazar|kala jaadu|kaala jadu|black magic|tona|totka|maut|death|accident|durghatna|bura samay|kharab samay)\b' }
+    - { reason: guarantee, pattern: '(\b(pakka|guarantee|zaroor hoga|definitely)\b|100 ?%)' }
+    - { reason: human_claim, pattern: '(main (ek )?insaan|main real|i am (a )?human|i am real)' }
+    - { reason: filler, pattern: '(checking your grahas|celestial|blueprint|please wait|ruko)' }
+  crisis:
+    - '\b(suicide|khudkushi|khud ?kushi|aatmahatya|self ?harm)\b'
+    - '(marna chahta|marna chahti|mar jaun|mar jaunga|mar jaungi|jaan de d|jeene ka mann nahi|jeena nahi chahta|jeena nahi chahti)'
+  injection:
+    - '(ignore (all|previous|above)|system prompt|your instructions|developer mode|act as)'
+  ai_question:
+    - '(tum|aap) (ai|bot|robot|real|insaan|human)\b'
+    - '\b(are you (an )?(ai|bot|real|human))\b'
+    - '\b(ai ho|bot ho|real ho|insaan ho)\b'

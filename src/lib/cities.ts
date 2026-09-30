@@ -1,0 +1,22 @@
+// Cities with coordinates, for matching birth places (see places.ts): [name, latitude, longitude].
+export const CITIES: [string, number, number][] = [
+  ["Agra", 27.18, 78.01], ["Ahmedabad", 23.03, 72.58], ["Ajmer", 26.45, 74.64], ["Aligarh", 27.88, 78.08],
+  ["Allahabad (Prayagraj)", 25.44, 81.85], ["Amritsar", 31.63, 74.87], ["Aurangabad", 19.88, 75.34], ["Bareilly", 28.37, 79.43],
+  ["Bengaluru", 12.97, 77.59], ["Bhopal", 23.26, 77.41], ["Bhubaneswar", 20.3, 85.82], ["Bikaner", 28.02, 73.31],
+  ["Chandigarh", 30.73, 76.78], ["Chennai", 13.08, 80.27], ["Coimbatore", 11.02, 76.96], ["Cuttack", 20.46, 85.88],
+  ["Dehradun", 30.32, 78.03], ["Delhi", 28.61, 77.21], ["Dhanbad", 23.8, 86.43], ["Gaya", 24.79, 85.0],
+  ["Gorakhpur", 26.76, 83.37], ["Guntur", 16.31, 80.44], ["Gurugram", 28.46, 77.03], ["Guwahati", 26.14, 91.74],
+  ["Gwalior", 26.22, 78.18], ["Hubli", 15.36, 75.12], ["Hyderabad", 17.39, 78.49], ["Indore", 22.72, 75.86],
+  ["Jabalpur", 23.18, 79.99], ["Jaipur", 26.91, 75.79], ["Jalandhar", 31.33, 75.58], ["Jammu", 32.73, 74.86],
+  ["Jamshedpur", 22.8, 86.2], ["Jhansi", 25.45, 78.57], ["Jodhpur", 26.24, 73.02], ["Kanpur", 26.45, 80.33],
+  ["Kochi", 9.93, 76.27], ["Kolkata", 22.57, 88.36], ["Kota", 25.21, 75.86], ["Kozhikode", 11.26, 75.78],
+  ["Lucknow", 26.85, 80.95], ["Ludhiana", 30.9, 75.86], ["Madurai", 9.93, 78.12], ["Mangaluru", 12.91, 74.86],
+  ["Meerut", 28.98, 77.71], ["Moradabad", 28.84, 78.77], ["Mumbai", 19.08, 72.88], ["Muzaffarpur", 26.12, 85.39],
+  ["Mysuru", 12.3, 76.64], ["Nagpur", 21.15, 79.09], ["Nashik", 20.0, 73.79], ["Nellore", 14.44, 79.99],
+  ["Noida", 28.54, 77.39], ["Patna", 25.59, 85.14], ["Puducherry", 11.94, 79.81], ["Pune", 18.52, 73.86],
+  ["Raipur", 21.25, 81.63], ["Rajkot", 22.3, 70.8], ["Ranchi", 23.34, 85.31], ["Rajahmundry", 17.0, 81.8],
+  ["Salem", 11.66, 78.15], ["Shimla", 31.1, 77.17], ["Siliguri", 26.73, 88.4], ["Srinagar", 34.08, 74.8],
+  ["Surat", 21.17, 72.83], ["Tenali", 16.24, 80.64], ["Thiruvananthapuram", 8.52, 76.94], ["Tiruchirappalli", 10.8, 78.69],
+  ["Tirupati", 13.63, 79.42], ["Udaipur", 24.58, 73.71], ["Ujjain", 23.18, 75.78], ["Vadodara", 22.31, 73.18],
+  ["Varanasi", 25.32, 82.97], ["Vijayawada", 16.51, 80.65], ["Visakhapatnam", 17.69, 83.22], ["Warangal", 17.97, 79.59],
+];
