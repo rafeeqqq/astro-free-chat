@@ -64,11 +64,16 @@ async function main() {
 
   if (!dryRun) {
     await getStore().upsertUsers(users.map((u) => u.user));
-    mkdirSync("out", { recursive: true });
-    const sign = src.links?.require_signature;
-    const csv = [["user_id", "cohort", "link"], ...users.map((u) => [u.user_id, u.user.cohort ?? "", `${base}/u/${u.user_id}${sign ? `?s=${linkSignature(secret, u.user_id)}` : ""}`])];
-    writeFileSync(`out/sync_${day}.csv`, csv.map((r) => r.join(",")).join("\n") + "\n");
-    writeFileSync(`out/sync_${day}_report.txt`, lines.join("\n") + "\n");
+    // The report files are a convenience: the users are already saved, so a read-only disk is a warning, not a failure.
+    try {
+      mkdirSync("out", { recursive: true });
+      const sign = src.links?.require_signature;
+      const csv = [["user_id", "cohort", "link"], ...users.map((u) => [u.user_id, u.user.cohort ?? "", `${base}/u/${u.user_id}${sign ? `?s=${linkSignature(secret, u.user_id)}` : ""}`])];
+      writeFileSync(`out/sync_${day}.csv`, csv.map((r) => r.join(",")).join("\n") + "\n");
+      writeFileSync(`out/sync_${day}_report.txt`, lines.join("\n") + "\n");
+    } catch (err) {
+      console.warn(`note: report files not written (${(err as Error).message}); the users were saved.`);
+    }
   }
 
   if (report.synced === 0) throw new Error("Nothing was synced.");

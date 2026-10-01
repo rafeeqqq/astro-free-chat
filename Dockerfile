@@ -28,6 +28,8 @@ COPY --from=build --chown=node:node /app/src ./src
 COPY --from=build --chown=node:node /app/scripts ./scripts
 COPY --from=build --chown=node:node /app/drizzle ./drizzle
 COPY --from=build --chown=node:node /app/next.config.ts /app/tsconfig.json ./
+# The daily sync writes its report to out/ (the app user must own it)
+RUN mkdir -p /app/out && chown node:node /app/out
 USER node
 EXPOSE 3000
 # Next runs as the main process, so Kubernetes' SIGTERM reaches it and pods drain cleanly on rollout.

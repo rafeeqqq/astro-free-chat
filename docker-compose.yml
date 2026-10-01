@@ -1,7 +1,7 @@
 # Local run of the production setup: Postgres → one-off migration → the app.
 #   docker compose up --build          → http://localhost:3000  (health: /api/health)
 #   docker compose run --rm migrate    → apply new migrations after `npm run db:generate`
-#   docker compose --profile sync run --rm sync --dry-run      → try the daily sync (needs REDASH_API_KEY in .env.local)
+#   docker compose --profile sync build && docker compose --profile sync run --rm sync --dry-run   → try the daily sync (needs REDASH_API_KEY)
 # Your keys come from .env.local if it exists (GEMINI_API_KEY, REDASH_API_KEY…); the database settings below win.
 
 x-app: &app
