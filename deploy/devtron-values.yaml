@@ -268,7 +268,7 @@ networkPolicy:
 pauseForSecondsBeforeSwitchActive: 30
 podAnnotations: {}
 podDisruptionBudget:                # CHANGED: keep at least one pod during node maintenance
-  minAvailable: 1
+  minAvailable: "1"                 # Devtron expects a string here
 podLabels: {}
 podSecurityContext: {}
 prometheus:
