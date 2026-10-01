@@ -1,322 +1,103 @@
-# Devtron deployment values for astro-free-chat (web app).
-# Lines marked CHANGED differ from the Devtron defaults; "CHANGE ME" must be filled in.
-# Secrets (DATABASE_URL, TOKEN_SECRET, GEMINI_API_KEY, ADMIN_PASSWORD) go in Devtron → App config → Secrets, not here.
-# Migrations: CD pipeline → Pre-deployment stage → run `node scripts/migrate.ts` with this same image and DATABASE_URL.
-# Daily sync: a separate Devtron Job (cron), same image, command `node scripts/sync.ts`, env DATABASE_URL, TOKEN_SECRET,
-#             REDASH_API_KEY, CHAT_BASE_URL.
+# Devtron values for astro-free-chat (web app), built on the team's base template.
+# Lines marked CHANGED differ from the base; "CHANGE ME" must be filled in.
+# Secrets (DATABASE_URL, TOKEN_SECRET, GEMINI_API_KEY, ADMIN_PASSWORD) → Devtron App config → Secrets, not here.
+# Migrations → CD pipeline Pre-deployment stage: `node scripts/migrate.ts` (same image, DATABASE_URL).
+# Daily sync → a Devtron Job (cron), same image: `node scripts/sync.ts` (DATABASE_URL, TOKEN_SECRET, REDASH_API_KEY, CHAT_BASE_URL).
 ContainerPort:
   - envoyPort: 8799
     idleTimeout: 1800s
     name: app
-    port: 3000                      # CHANGED: the app listens on 3000
+    port: 3000
     protocol: TCP
     servicePort: 80
-    supportStreaming: false
-    useHTTP2: false
-EnvVariables:                       # CHANGED: non-secret settings only
+EnvVariables:                         # CHANGED: non-secret settings
   - name: ADMIN_PUBLIC
     value: "1"
   - name: DB_POOL_MAX
-    value: "5"                      # connections per pod; pods × this must stay under the database's limit
+    value: "5"                        # connections per pod (max 4 pods × 5 = 20)
   - name: CHAT_BASE_URL
-    value: "https://chat.astrolokal.com"   # CHANGE ME: the chat domain
-GracePeriod: 30
-LivenessProbe:                      # CHANGED: port check only, so a database blip never restarts pods
+    value: "https://ai-chat.astrolokal.com"   # CHANGE ME: same as the ingress host below
+LivenessProbe:                        # CHANGED: port check only, so a database blip never restarts pods
   Path: ""
   command: []
   failureThreshold: 3
-  grpc: {}
-  httpHeaders: []
   initialDelaySeconds: 20
   periodSeconds: 10
-  port: 3000                        # CHANGED
-  scheme: ""
+  port: 3000
   successThreshold: 1
-  tcp: true                         # CHANGED
+  tcp: true                           # CHANGED
   timeoutSeconds: 5
-MaxSurge: 1
-MaxUnavailable: 0
-MinReadySeconds: 30                 # CHANGED (was 60): pods are ready in seconds
-ReadinessProbe:                     # CHANGED: traffic only once the app and the migrated database answer
-  Path: /api/health                 # CHANGED
+ReadinessProbe:                       # CHANGED: traffic only when the app and the migrated database answer
+  Path: /api/health                   # CHANGED
   command: []
   failureThreshold: 3
-  grpc: {}
-  httpHeaders: []
-  initialDelaySeconds: 10           # CHANGED
+  initialDelaySeconds: 20
   periodSeconds: 10
-  port: 3000                        # CHANGED
-  scheme: ""
+  port: 3000
   successThreshold: 1
   tcp: false
   timeoutSeconds: 5
 Spec:
   Affinity:
-    Key: ""
-    Values: ""
-StartupProbe:
-  Path: /api/health                 # CHANGED
-  command: []
-  failureThreshold: 12              # CHANGED: up to ~2 min to start
-  grpc: {}
-  httpHeaders: []
-  initialDelaySeconds: 5            # CHANGED
-  periodSeconds: 10
-  port: 3000                        # CHANGED
-  successThreshold: 1
-  tcp: false
-  timeoutSeconds: 5
-affinity:
-  enabled: false
-  values: {}
-ambassadorMapping:
-  ambassadorId: ""
-  cors: {}
-  enabled: false
-  hostname: devtron.example.com
-  labels: {}
-  prefix: /
-  retryPolicy: {}
-  rewrite: ""
-  tls:
-    context: ""
-    create: false
-    hosts: []
-    secretName: ""
-args:
-  enabled: false
-  value:
-    - /bin/sh
-    - -c
-    - touch /tmp/healthy; sleep 30; rm -rf /tmp/healthy; sleep 600
+    Key: kubernetes.io/arch
+    Values: arm64                     # the image must be built for linux/arm64 (Node 24 base image supports it)
 autoscaling:
-  MaxReplicas: 4                    # CHANGED
-  MinReplicas: 2                    # CHANGED
-  TargetCPUUtilizationPercentage: 70   # CHANGED
-  TargetMemoryUtilizationPercentage: 80
+  MaxReplicas: 4
+  MinReplicas: 2
+  TargetCPUUtilizationPercentage: 70
+  TargetMemoryUtilizationPercentage: 90
   annotations: {}
   behavior: {}
-  containerResource:
-    TargetCPUUtilizationPercentage: 90
-    TargetMemoryUtilizationPercentage: 80
-    enabled: false
-  enabled: true                     # CHANGED
-  extraMetrics: []
-  labels: {}
-command:
-  enabled: false                    # the image's own command starts the app
-  value: []
-  workingDir: {}
-containerSecurityContext: {}
-containerSpec:
+  enabled: true
+containerSpec:                        # CHANGED: let the ingress stop sending traffic before a pod stops (no 502s on deploy)
   lifecycle:
-    enabled: true                   # CHANGED: drain before stopping on every deploy
+    enabled: true
     preStop:
       exec:
         command:
           - sleep
           - "10"
-    # CHANGED: removed the example postStart hook (it calls example.com and would kill every pod)
-containers: []
-dbMigrationConfig:
-  enabled: false                    # migrations run in the CD pre-deployment stage (see top)
-deploymentAnnotations: {}
-deploymentLabels: {}
-envoyproxy:
-  configMapName: ""
-  image: quay.io/devtron/envoy:v1.16.0
-  lifecycle: {}
-  resources:
-    limits:
-      cpu: 50m
-      memory: 50Mi
-    requests:
-      cpu: 50m
-      memory: 50Mi
-flaggerCanary:
-  addOtherGateways: []
-  addOtherHosts: []
-  analysis:
-    interval: 15s
-    maxWeight: 50
-    stepWeight: 5
-    threshold: 5
-  annotations: {}
-  appProtocol: http
-  corsPolicy: null
-  createIstioGateway:
-    annotations: {}
-    enabled: false
-    host: null
-    labels: {}
-    tls:
-      enabled: false
-      secretName: null
-  enabled: false
-  gatewayRefs: null
-  headers: null
-  labels: {}
-  loadtest:
-    enabled: true
-    url: http://flagger-loadtester.istio-system/
-  match:
-    - uri:
-        prefix: /
-  portDiscovery: true
-  retries: null
-  rewriteUri: /
-  serviceport: 3000                 # CHANGED
-  targetPort: 3000                  # CHANGED
-  thresholds:
-    latency: 500
-    successRate: 90
-  timeout: null
-hostAliases: []
-image:
-  pullPolicy: IfNotPresent
-imagePullSecrets: []
+podDisruptionBudget:                  # CHANGED: keep one pod up during node maintenance
+  minAvailable: "1"
 ingress:
-  annotations: {}
-  className: ""                     # CHANGE ME: your cluster's ingress class (e.g. nginx), if you expose it this way
-  enabled: true                     # CHANGED
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  className: nginx
+  enabled: true
   hosts:
-    - host: chat.astrolokal.com     # CHANGE ME: the chat domain
+    - host: ai-chat.astrolokal.com    # CHANGE ME: {app_name}.{product_domain}
       pathType: Prefix
       paths:
         - /
-  labels: {}
-  tls: []                           # CHANGE ME: add the TLS secret for the domain (links must be https)
+  tls:
+    - secretName: ai-chat-tls         # CHANGE ME: {app_name}-tls
 ingressInternal:
-  annotations: {}
-  className: ""
+  annotations:
+    kubernetes.io/ingress.class: nginx-internal
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: 100m
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  className: nginx-internal
   enabled: false
   hosts:
-    - host: chart-example1.internal
-      pathType: ImplementationSpecific
+    - host: ai-chat.astrolokal.com    # CHANGE ME
+      pathType: Prefix
       paths:
-        - /example1
-  tls: []
-initContainers: []
-istio:
-  authorizationPolicy:
-    action: null
-    annotations: {}
-    enabled: false
-    labels: {}
-    provider: {}
-    rules: []
-  destinationRule:
-    annotations: {}
-    enabled: false
-    labels: {}
-    subsets: []
-    trafficPolicy: {}
-  enable: false
-  gateway:
-    annotations: {}
-    enabled: false
-    host: example.com
-    labels: {}
-    tls:
-      enabled: false
-      secretName: example-secret
-  peerAuthentication:
-    annotations: {}
-    enabled: false
-    labels: {}
-    mtls:
-      mode: ""
-    portLevelMtls: {}
-    selector:
-      enabled: false
-  requestAuthentication:
-    annotations: {}
-    enabled: false
-    jwtRules: []
-    labels: {}
-    selector:
-      enabled: false
-  virtualService:
-    annotations: {}
-    enabled: false
-    gateways: []
-    hosts: []
-    http: []
-    labels: {}
-kedaAutoscaling:
-  advanced: {}
-  authenticationRef: {}
-  enabled: false
-  envSourceContainerName: ""
-  maxReplicaCount: 2
-  minReplicaCount: 1
-  triggerAuthentication:
-    enabled: false
-    name: ""
-    spec: {}
-  triggers: []
-networkPolicy:
-  annotations: {}
-  egress: []
-  enabled: false
-  ingress: []
-  labels: {}
-  podSelector:
-    matchExpressions: []
-    matchLabels: {}
-  policyTypes: []
-pauseForSecondsBeforeSwitchActive: 30
-podAnnotations: {}
-podDisruptionBudget:                # CHANGED: keep at least one pod during node maintenance
-  minAvailable: "1"                 # Devtron expects a string here
-podLabels: {}
-podSecurityContext: {}
-prometheus:
-  release: monitoring
-rawYaml: []
-replicaCount: 2                     # CHANGED: two pods (autoscaling takes over when enabled)
-resources:                          # CHANGED: 50Mi would crash Next.js on start
+        - /
+  tls:
+    - secretName: ai-chat-tls         # CHANGE ME
+resources:                            # CHANGED: measured 168 MB idle, 195 MB with 20 parallel chats; 200Mi would get pods killed
   limits:
-    cpu: "1"
-    memory: 768Mi
+    cpu: 500m                         # CHANGED (was 200m)
+    memory: 512Mi                     # CHANGED (was 200Mi)
   requests:
-    cpu: 250m
-    memory: 384Mi
-restartPolicy: Always
-secret:
-  data: {}
-  enabled: false                    # use Devtron → Secrets for DATABASE_URL, TOKEN_SECRET, GEMINI_API_KEY, ADMIN_PASSWORD
-server:
-  deployment:
-    image: ""
-    image_tag: 1-95af053
-service:
-  annotations: {}
-  loadBalancerSourceRanges: []
-  type: ClusterIP
-serviceAccount:
-  annotations: {}
-  create: false
-  name: ""
-servicemonitor:
-  additionalLabels: {}
-tolerations: []
-topologySpreadConstraints: []
-verticalPodScaling:
-  enabled: false
-volumeMounts: []
-volumes: []
-waitForSecondsBeforeScalingDown: 30
-winterSoldier:
-  action: sleep
-  annotation: {}
-  apiVersion: pincher.devtron.ai/v1alpha1
-  enabled: false
-  fieldSelector:
-    - AfterTime(AddTime(ParseTime({{metadata.creationTimestamp}}, '2006-01-02T15:04:05Z'), '5m'), Now())
-  labels: {}
-  targetReplicas: []
-  timeRangesWithZone:
-    timeRanges: []
-    timeZone: Asia/Kolkata
-  type: Deployment
+    cpu: 100m
+    memory: 200Mi                     # CHANGED (was 100Mi)
+replicaCount: 2                       # CHANGED (was 1): matches MinReplicas
+MaxSurge: 1
+MaxUnavailable: 0
+MinReadySeconds: 60
+GracePeriod: 30
