@@ -1,0 +1,60 @@
+# Local run of the production setup: Postgres → one-off migration → the app.
+#   docker compose up --build          → http://localhost:3000  (health: /api/health)
+#   docker compose run --rm migrate    → apply new migrations after `npm run db:generate`
+#   docker compose --profile sync run --rm sync --dry-run      → try the daily sync (needs REDASH_API_KEY in .env.local)
+# Your keys come from .env.local if it exists (GEMINI_API_KEY, REDASH_API_KEY…); the database settings below win.
+
+x-app: &app
+  build: .
+  env_file:
+    - path: .env.local
+      required: false
+  environment: &env
+    DATABASE_URL: postgres://freechat:freechat@db:5432/freechat
+    TOKEN_SECRET: local-dev-token-secret-change-me
+    ADMIN_PASSWORD: local-admin
+    MOCK_LLM: ""
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: freechat
+      POSTGRES_PASSWORD: freechat
+      POSTGRES_DB: freechat
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U freechat -d freechat"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  migrate:
+    <<: *app
+    command: ["node", "scripts/migrate.ts"]
+    depends_on:
+      db: { condition: service_healthy }
+    restart: "no"
+
+  web:
+    <<: *app
+    ports: ["3000:3000"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  sync:
+    <<: *app
+    profiles: [sync]
+    entrypoint: ["node", "scripts/sync.ts"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    restart: "no"
+
+volumes:
+  pgdata:

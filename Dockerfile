@@ -1,6 +1,7 @@
-# One image for both jobs on Devtron:
-#   web  (default):  npm start           → the chat, /u links, /admin      (port 3000, health: GET /api/health)
-#   cron (daily):    npm run sync        → today's users from Redash into the database
+# One image, three uses on Kubernetes (Devtron):
+#   migrate (once per deploy, before new pods):  node scripts/migrate.ts   → applies pending drizzle/ migrations
+#   web     (default, any number of pods):       the chat, /u links, /admin (port 3000, readiness: GET /api/health)
+#   sync    (daily cron):                        node scripts/sync.ts      → today's users from Redash into the database
 # Secrets come from Devtron env (see README → Deploy), never from the image.
 
 FROM node:24-slim AS deps
@@ -25,7 +26,9 @@ COPY --from=build --chown=node:node /app/public ./public
 COPY --from=build --chown=node:node /app/config ./config
 COPY --from=build --chown=node:node /app/src ./src
 COPY --from=build --chown=node:node /app/scripts ./scripts
+COPY --from=build --chown=node:node /app/drizzle ./drizzle
 COPY --from=build --chown=node:node /app/next.config.ts /app/tsconfig.json ./
 USER node
 EXPOSE 3000
-CMD ["npx", "next", "start", "-p", "3000"]
+# Next runs as the main process, so Kubernetes' SIGTERM reaches it and pods drain cleanly on rollout.
+CMD ["node", "node_modules/next/dist/bin/next", "start", "-p", "3000"]

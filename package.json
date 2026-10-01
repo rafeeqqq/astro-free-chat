@@ -17,12 +17,15 @@
     "gemini-test": "node --env-file-if-exists=.env.local scripts/gemini-test.ts",
     "replay": "node --env-file-if-exists=.env.local scripts/replay.ts",
     "prodcheck": "node --env-file-if-exists=.env.local scripts/cli.ts prodcheck",
-    "sync": "node --env-file-if-exists=.env.local scripts/sync.ts"
+    "sync": "node --env-file-if-exists=.env.local scripts/sync.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "node scripts/migrate.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.79",
     "ai": "^7.0.113",
     "astronomy-engine": "^2.1.19",
+    "drizzle-orm": "^0.45.3",
     "next": "16.3.6",
     "postgres": "^3.4.9",
     "react": "19.2.8",
@@ -30,15 +33,18 @@
     "yaml": "^2.9.1"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@electric-sql/pglite-socket": "^0.2.11",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=22.18"
+    "node": ">=24"
   },
   "type": "module"
 }

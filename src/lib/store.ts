@@ -6,6 +6,7 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync, renameSync } from "node:fs";
 import { join } from "node:path";
 import postgres from "postgres";
+import { createSql } from "../db/client.ts";
 import type { UserInput, SessionState, TurnLog } from "../engine/engine.ts";
 
 // user/ai = the conversation · details = the auto-sent birth details · kundli = the chart card · system = centred notes ("has joined")
@@ -31,6 +32,8 @@ export const isTestToken = (token: string) => /^t_(team|demo)_[\w-]+$/.test(toke
 export type EventRow = { token: string; name: string; props: Record<string, unknown>; at: string };
 
 export interface Store {
+  /** The database answers and its schema is migrated (health check). */
+  ping(): Promise<void>;
   getUser(token: string): Promise<UserInput | null>;
   upsertUsers(users: UserInput[]): Promise<void>;
   /** Internal test users only (tokens starting with t_team_ or t_demo_), for the admin page. */
@@ -53,6 +56,7 @@ export interface Store {
 type FileData = { users: Record<string, UserInput>; sessions: Record<string, Session>; turns: TurnLog[]; events: EventRow[] };
 
 class FileStore implements Store {
+  async ping() {}
   private path: string;
   private chain: Promise<unknown> = Promise.resolve();
 
@@ -109,52 +113,40 @@ class FileStore implements Store {
 
 // ── Postgres (production) ────────────────────────────────────────────────────
 
+// Tables come from migrations (drizzle/, applied by `npm run db:migrate` before deploy); the app never changes the schema.
 class PgStore implements Store {
   private sql: postgres.Sql;
-  private ready: Promise<void>;
 
   constructor(url: string) {
-    this.sql = postgres(url, { max: 5, idle_timeout: 20, prepare: false });
-    this.ready = this.migrate();
+    this.sql = createSql(url);
   }
-  private async migrate() {
-    const sql = this.sql;
-    await sql`create table if not exists fc_users (token text primary key, data jsonb not null, created_at timestamptz default now())`;
-    await sql`create table if not exists fc_sessions (token text primary key, data jsonb not null, started_at timestamptz not null, updated_at timestamptz default now())`;
-    await sql`create table if not exists fc_turns (id bigserial primary key, token text not null, data jsonb not null, created_at timestamptz default now())`;
-    await sql`create index if not exists fc_turns_token on fc_turns(token)`;
-    await sql`create table if not exists fc_events (id bigserial primary key, token text not null, name text not null, props jsonb not null default '{}', created_at timestamptz default now())`;
-    await sql`create index if not exists fc_events_token on fc_events(token)`;
+  /** For the health check: the database answers and the schema is migrated. */
+  async ping() {
+    await this.sql`select 1 from fc_users limit 1`;
   }
   async getUser(token: string) {
-    await this.ready;
     const rows = await this.sql`select data from fc_users where token = ${token}`;
     return (rows[0]?.data as UserInput) ?? null;
   }
   async upsertUsers(users: UserInput[]) {
-    await this.ready;
     for (const u of users)
       await this.sql`insert into fc_users (token, data) values (${u.token}, ${this.sql.json(u as unknown as postgres.JSONValue)})
         on conflict (token) do update set data = excluded.data`;
   }
   async testUsers() {
-    await this.ready;
     const rows = await this.sql`select data from fc_users where token like 't\_team\_%' or token like 't\_demo\_%' order by token`;
     return rows.map((r) => r.data as UserInput);
   }
   async resetSessions(tokens: string[]) {
-    await this.ready;
     await this.sql`delete from fc_sessions where token = any(${tokens})`;
     await this.sql`delete from fc_turns where token = any(${tokens})`;
     await this.sql`delete from fc_events where token = any(${tokens})`;
   }
   async getSession(token: string) {
-    await this.ready;
     const rows = await this.sql`select data from fc_sessions where token = ${token}`;
     return (rows[0]?.data as Session) ?? null;
   }
   async withSession<T>(token: string, fn: (s: Session | null) => Promise<{ session: Session | null; result: T }>) {
-    await this.ready;
     return this.sql.begin(async (tx) => {
       // Advisory lock per token: serialises concurrent requests for the same chat, even before the row exists.
       await tx`select pg_advisory_xact_lock(hashtext(${token}))`;
@@ -167,30 +159,24 @@ class PgStore implements Store {
     }) as Promise<T>;
   }
   async addTurnLog(log: TurnLog) {
-    await this.ready;
     await this.sql`insert into fc_turns (token, data) values (${log.session_token}, ${this.sql.json(log as unknown as postgres.JSONValue)})`;
   }
   async addEvent(e: EventRow) {
-    await this.ready;
     await this.sql`insert into fc_events (token, name, props, created_at) values (${e.token}, ${e.name}, ${this.sql.json(e.props as postgres.JSONValue)}, ${e.at})`;
   }
   async recentSessions(limit: number) {
-    await this.ready;
     const rows = await this.sql`select data from fc_sessions order by started_at desc limit ${limit}`;
     return rows.map((r) => r.data as Session);
   }
   async turnLogs(token: string) {
-    await this.ready;
     const rows = await this.sql`select data from fc_turns where token = ${token} order by id`;
     return rows.map((r) => r.data as TurnLog);
   }
   async recentTurnLogs(limit: number) {
-    await this.ready;
     const rows = await this.sql`select data from fc_turns order by id desc limit ${limit}`;
     return rows.map((r) => r.data as TurnLog);
   }
   async events(limit: number) {
-    await this.ready;
     const rows = await this.sql`select token, name, props, created_at from fc_events order by id desc limit ${limit}`;
     return rows.map((r) => ({ token: r.token, name: r.name, props: r.props, at: new Date(r.created_at).toISOString() }) as EventRow);
   }

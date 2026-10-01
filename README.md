@@ -18,16 +18,22 @@ Bump `prompt_version` on every change so `/admin` shows results per version.
 
 | Command | Does |
 |---|---|
-| `npm run dev` | Run locally |
+| `docker compose up --build` | Run everything locally (Postgres + migration + app) on http://localhost:3000 |
+| `npm run dev` | Run the app alone (no database needed) |
 | `npm run verify` | Check config + tests. Run before every push |
 | `npm run sync` | Load today's users from Redash (daily cron) |
+| `npm run db:generate` | After changing `src/db/schema.ts`: writes the new migration to `drizzle/` (commit it) |
+| `npm run db:migrate` | Applies pending migrations once (deploy step) |
 | `npm run prodcheck` | ✓/✗ list before going live |
 
 ## Deploy (Devtron)
 
-One image (`Dockerfile`): the web app (port 3000, health `/api/health`) and a daily cron running `npm run sync`.
+One image (`Dockerfile`, Node 24), three uses:
+1. **Migrate**: `node scripts/migrate.ts` as a pre-deploy job, once per deploy, before new pods start.
+2. **Web**: the default command; any number of pods (port 3000, readiness `/api/health`, which fails until migrations ran).
+3. **Sync**: daily cron, `node scripts/sync.ts`.
 
-Env: `DATABASE_URL`, `TOKEN_SECRET`, `GEMINI_API_KEY`, `ADMIN_PASSWORD`, `ADMIN_PUBLIC=1` (web) · `REDASH_API_KEY`, `CHAT_BASE_URL` (cron). See `.env.example`.
+Env: `DATABASE_URL` (any Postgres; add `?sslmode=require` for managed ones), `DB_POOL_MAX`, `TOKEN_SECRET`, `GEMINI_API_KEY`, `ADMIN_PASSWORD`, `ADMIN_PUBLIC=1` (web) · `REDASH_API_KEY`, `CHAT_BASE_URL` (cron). See `.env.example`.
 
 ## Analytics
 
