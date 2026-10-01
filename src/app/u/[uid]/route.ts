@@ -20,7 +20,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ uid: str
     console.error("user link failed:", (err as Error).message.split("\n")[0]); // e.g. database down: friendly page, not an error
   }
   const keep = new URLSearchParams(url.search);
-  keep.delete("s");
+  for (const k of ["s", "user_id", "uid", "id"]) keep.delete(k); // the user_id never travels into the chat address
   const q = keep.size ? `?${keep}` : "";
   // Relative redirect: stays on the domain the user opened; never cached (the target changes by day).
   return new Response(null, { status: 302, headers: { Location: token ? `/c/${token}${q}` : `/c/unknown${q}`, "Cache-Control": "no-store" } });

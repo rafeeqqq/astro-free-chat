@@ -6,7 +6,7 @@ A lapsed user taps a WhatsApp link → a 2-minute free chat with Astro Omkar (th
 
 ```
 Redash query (daily) → npm run sync → users + kundli saved
-WhatsApp link /u/{user_id} → their chat → button → Astrolokal app
+WhatsApp link /u/{user_id} (or /u?user_id={user_id}) → their chat → button → Astrolokal app
 ```
 
 ## Change the experience
