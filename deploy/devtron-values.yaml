@@ -16,7 +16,7 @@ EnvVariables:                         # CHANGED: non-secret settings
   - name: DB_POOL_MAX
     value: "5"                        # connections per pod (max 4 pods × 5 = 20)
   - name: CHAT_BASE_URL
-    value: "https://ai-chat.astrolokal.com"   # CHANGE ME: same as the ingress host below
+    value: "https://astro-free-chat.astrolokal.com"
 LivenessProbe:                        # CHANGED: port check only, so a database blip never restarts pods
   Path: ""
   command: []
@@ -68,12 +68,12 @@ ingress:
   className: nginx
   enabled: true
   hosts:
-    - host: ai-chat.astrolokal.com    # CHANGE ME: {app_name}.{product_domain}
+    - host: astro-free-chat.astrolokal.com
       pathType: Prefix
       paths:
         - /
   tls:
-    - secretName: ai-chat-tls         # CHANGE ME: {app_name}-tls
+    - secretName: astro-free-chat-tls
 ingressInternal:
   annotations:
     kubernetes.io/ingress.class: nginx-internal
@@ -83,12 +83,12 @@ ingressInternal:
   className: nginx-internal
   enabled: false
   hosts:
-    - host: ai-chat.astrolokal.com    # CHANGE ME
+    - host: astro-free-chat.astrolokal.com
       pathType: Prefix
       paths:
         - /
   tls:
-    - secretName: ai-chat-tls         # CHANGE ME
+    - secretName: astro-free-chat-tls
 resources:                            # CHANGED: measured 168 MB idle, 195 MB with 20 parallel chats; 200Mi would get pods killed
   limits:
     cpu: 500m                         # CHANGED (was 200m)
