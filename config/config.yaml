@@ -199,6 +199,7 @@ source:
   links:
     user_id_pattern: "^[0-9]{1,15}$"   # what a valid user_id looks like; anything else gets the "link isn't working" page
     lookback_days: 2                   # a link tapped up to 2 days after the send still opens that send's chat
+    one_chat_every_days: 7             # one free chat per user every 7 days; tapping again in that window reopens the same chat. 0 = no limit
     require_signature: false           # true = the link must also carry &s=<signature> (see README): a user_id can't be changed by hand
   on_click:
     enabled: true                      # a link with no chat yet looks the user up in the query right away (needs REDASH_API_KEY)

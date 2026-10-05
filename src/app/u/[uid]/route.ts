@@ -18,7 +18,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ uid: str
     const L = config();
     const secret = process.env.TOKEN_SECRET ?? "";
     const sig = url.searchParams.get("s");
-    token = await resolveUserLink((t) => store.getUser(t), secret, uid, sig, L.cfg.source?.links);
+    token = await resolveUserLink((t) => store.getUser(t), secret, uid, sig, L.cfg.source?.links, Date.now(), (t) => store.getSession(t));
     if (!token && linkAllowed(secret, uid, sig, L.cfg.source?.links)) {
       token = await lookupUser(L, store, uid, {
         redashUrl: process.env.REDASH_URL ?? "https://analytics.getlokalapp.com",

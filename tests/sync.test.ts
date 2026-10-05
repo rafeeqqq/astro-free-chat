@@ -110,3 +110,19 @@ test("the WATI link /u/<user_id> opens that user's latest chat, and nothing else
   assert.equal(await resolveUserLink(getUser, secret, "4321", "wrong", signed, now), null);
   assert.ok(await resolveUserLink(getUser, secret, "4321", linkSignature(secret, "4321"), signed, now));
 });
+
+test("one free chat every N days: tapping again in the window reopens the same chat", async () => {
+  const { resolveUserLink, linkToken, istDay } = await import("../src/lib/sync.ts");
+  const secret = "x".repeat(20);
+  const now = Date.UTC(2026, 9, 5, 6);
+  const day3ago = linkToken(secret, "777", istDay(3, now)), today = linkToken(secret, "777", istDay(0, now));
+  const users = new Set([day3ago, today]);       // synced 3 days ago and again today
+  const sessions = new Set([day3ago]);           // opened the chat 3 days ago
+  const getUser = async (t: string) => (users.has(t) ? {} : null);
+  const getSession = async (t: string) => (sessions.has(t) ? {} : null);
+  const every7 = { one_chat_every_days: 7 };
+  assert.equal(await resolveUserLink(getUser, secret, "777", null, every7, now, getSession), day3ago, "within 7 days → the same chat");
+  assert.equal(await resolveUserLink(getUser, secret, "777", null, { one_chat_every_days: 3 }, now, getSession), today, "outside a 3-day window → today's new chat");
+  assert.equal(await resolveUserLink(getUser, secret, "777", null, { one_chat_every_days: 0 }, now, getSession), today, "0 = no limit");
+  assert.equal(await resolveUserLink(getUser, secret, "888", null, every7, now, getSession), null, "never chatted, not synced → looked up on click");
+});

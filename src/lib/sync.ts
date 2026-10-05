@@ -20,7 +20,7 @@ export type SourceConfig = {
     token?: string; lat?: string; lon?: string; last_topic?: string; last_summary?: string; wallet_balance?: string; holdout?: string;
   };
   cohort_map?: Record<string, string>;   // their journey name → our cohort (see config.cohorts)
-  links?: { user_id_pattern?: string; require_signature?: boolean; lookback_days?: number };
+  links?: { user_id_pattern?: string; require_signature?: boolean; lookback_days?: number; one_chat_every_days?: number };
   on_click?: { enabled?: boolean; cache_minutes?: number; refresh_if_older_hours?: number };
   lagna_needs_city?: boolean;            // true: a place matched only to its state gets a Moon chart, not a guessed lagna
 };
@@ -58,9 +58,18 @@ export function linkSignature(secret: string, userId: string): string {
  */
 export async function resolveUserLink(
   getUser: (token: string) => Promise<unknown>, secret: string, uid: string, sig: string | null,
-  links: SourceConfig["links"] = {}, now = Date.now(),
+  links: SourceConfig["links"] = {}, now = Date.now(), getSession?: (token: string) => Promise<unknown>,
 ): Promise<string | null> {
   if (!linkAllowed(secret, uid, sig, links)) return null;
+  // One free chat per user every N days: if they opened a chat in that window, they get that same chat back
+  // (ended after its 2 minutes, with the "Talk to astrologer" button), not a new one.
+  const every = links.one_chat_every_days ?? 0;
+  if (every > 0 && getSession) {
+    for (let back = 0; back < every; back++) {
+      const token = linkToken(secret, uid, istDay(back, now));
+      if (await getSession(token)) return token;
+    }
+  }
   for (let back = 0; back <= (links.lookback_days ?? 2); back++) {
     const token = linkToken(secret, uid, istDay(back, now));
     if (await getUser(token)) return token;

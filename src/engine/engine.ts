@@ -253,6 +253,8 @@ export function validateConfig(cfg: Config, template: string): string[] {
     const lk = src.links ?? {};
     if (lk.user_id_pattern !== undefined) { try { new RegExp(lk.user_id_pattern); } catch { e.push("source.links.user_id_pattern is not a valid regex"); } }
     need(lk.lookback_days === undefined || (Number.isInteger(lk.lookback_days) && lk.lookback_days >= 0 && lk.lookback_days <= 7), "source.links.lookback_days must be 0–7");
+    need(lk.one_chat_every_days === undefined || (Number.isInteger(lk.one_chat_every_days) && lk.one_chat_every_days >= 0 && lk.one_chat_every_days <= 90),
+      "source.links.one_chat_every_days must be a whole number 0–90 (0 = no limit)");
     for (const [from, to] of Object.entries(src.cohort_map ?? {}))
       need(!!cfg.cohorts?.[to], `source.cohort_map: "${from}" → "${to}", but "${to}" is not in cohorts`);
   }
