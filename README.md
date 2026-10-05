@@ -5,9 +5,10 @@ A lapsed user taps a WhatsApp link → a 2-minute free chat with Astro Omkar (th
 ## Flow
 
 ```
-Redash query (daily) → npm run sync → users + kundli saved
-WhatsApp link /u/{user_id} (or /u?user_id={user_id}) → their chat → button → Astrolokal app
+WhatsApp link /u/{user_id} → their chat (looked up in the Redash query on the first click) → button → Astrolokal app
 ```
+The first click on a user's link finds them in query 20605's latest result (kept in memory 10 min) and builds their chat.
+Keep the query on a daily schedule in Redash. `npm run sync` (optional cron) pre-builds everyone's chat.
 
 ## Change the experience
 

@@ -200,6 +200,10 @@ source:
     user_id_pattern: "^[0-9]{1,15}$"   # what a valid user_id looks like; anything else gets the "link isn't working" page
     lookback_days: 2                   # a link tapped up to 2 days after the send still opens that send's chat
     require_signature: false           # true = the link must also carry &s=<signature> (see README): a user_id can't be changed by hand
+  on_click:
+    enabled: true                      # a link with no chat yet looks the user up in the query right away (needs REDASH_API_KEY)
+    cache_minutes: 10                  # the query result is kept in memory this long (one Redash call per pod, not per click)
+    refresh_if_older_hours: 26         # if Redash's stored result is older, re-run the query in the background
 
 # Screen copy. The conversation (Omkar's lines, the hand-off card) is Hinglish; everything around it is English.
 # {name} {moon_sign} {mahadasha} {dob_label} {tob_label} {pob} {gender_label} are filled in.

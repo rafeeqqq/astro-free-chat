@@ -21,6 +21,7 @@ export type SourceConfig = {
   };
   cohort_map?: Record<string, string>;   // their journey name → our cohort (see config.cohorts)
   links?: { user_id_pattern?: string; require_signature?: boolean; lookback_days?: number };
+  on_click?: { enabled?: boolean; cache_minutes?: number; refresh_if_older_hours?: number };
   lagna_needs_city?: boolean;            // true: a place matched only to its state gets a Moon chart, not a guessed lagna
 };
 
@@ -59,13 +60,18 @@ export async function resolveUserLink(
   getUser: (token: string) => Promise<unknown>, secret: string, uid: string, sig: string | null,
   links: SourceConfig["links"] = {}, now = Date.now(),
 ): Promise<string | null> {
-  if (!secret || !new RegExp(links.user_id_pattern ?? "^[0-9]{1,15}$").test(uid)) return null;
-  if (links.require_signature && sig !== linkSignature(secret, uid)) return null;
+  if (!linkAllowed(secret, uid, sig, links)) return null;
   for (let back = 0; back <= (links.lookback_days ?? 2); back++) {
     const token = linkToken(secret, uid, istDay(back, now));
     if (await getUser(token)) return token;
   }
   return null;
+}
+
+/** The link's user_id looks right and, if signatures are required, carries the right one. */
+export function linkAllowed(secret: string, uid: string, sig: string | null, links: SourceConfig["links"] = {}): boolean {
+  if (!secret || !new RegExp(links.user_id_pattern ?? "^[0-9]{1,15}$").test(uid)) return false;
+  return !links.require_signature || sig === linkSignature(secret, uid);
 }
 
 /** IST calendar day, n days back. */
@@ -203,6 +209,19 @@ export function normaliseTime(s: string): string {
   if (m[3]) { const pm = m[3].toLowerCase() === "pm"; if (h === 12) h = pm ? 12 : 0; else if (pm) h += 12; }
   if (h > 23 || min > 59 || (h === 0 && min === 0 && !m[3])) return ""; // 00:00 is how many systems store "unknown"
   return `${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+}
+
+/** The query's most recent stored result (no re-run): fast, used when a link is clicked. */
+export async function fetchRedashLatest(
+  baseUrl: string, queryId: number, apiKey: string, fetchFn: typeof fetch = fetch,
+): Promise<{ rows: SyncRow[]; retrievedAt: string }> {
+  const r = await fetchFn(`${baseUrl.replace(/\/$/, "")}/api/queries/${queryId}/results.json`, {
+    headers: { Authorization: `Key ${apiKey}` }, signal: AbortSignal.timeout(15_000),
+  });
+  if (!r.ok) throw new Error(`Redash answered ${r.status} for query ${queryId}`);
+  const body = (await r.json()) as { query_result?: { retrieved_at: string; data: { rows: SyncRow[] } } };
+  if (!body.query_result) throw new Error(`Redash has no stored result for query ${queryId} yet`);
+  return { rows: body.query_result.data.rows, retrievedAt: body.query_result.retrieved_at };
 }
 
 /** Fetches fresh results of a Redash query (refreshes it, waits for the job, returns the rows). */

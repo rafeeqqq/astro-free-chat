@@ -247,6 +247,9 @@ export function validateConfig(cfg: Config, template: string): string[] {
     need(Number.isInteger(src.redash_query_id) && src.redash_query_id > 0, "source.redash_query_id must be the Redash query number");
     for (const k of ["user_id", "dob", "tob", "pob", "name", "gender", "cohort"] as const)
       need(typeof src.columns?.[k] === "string" && src.columns[k].trim(), `source.columns.${k} must name a column of the query`);
+    const oc = src.on_click ?? {};
+    need(oc.cache_minutes === undefined || (oc.cache_minutes >= 0 && oc.cache_minutes <= 240), "source.on_click.cache_minutes must be 0–240");
+    need(oc.refresh_if_older_hours === undefined || oc.refresh_if_older_hours > 0, "source.on_click.refresh_if_older_hours must be above 0");
     const lk = src.links ?? {};
     if (lk.user_id_pattern !== undefined) { try { new RegExp(lk.user_id_pattern); } catch { e.push("source.links.user_id_pattern is not a valid regex"); } }
     need(lk.lookback_days === undefined || (Number.isInteger(lk.lookback_days) && lk.lookback_days >= 0 && lk.lookback_days <= 7), "source.links.lookback_days must be 0–7");
