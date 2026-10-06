@@ -57,6 +57,16 @@ test("the app's store works on the migrated database (users, chats with locking,
   await store.addEvent({ token: "tok_db_1", name: "link_opened", props: { a: 1 }, at: new Date().toISOString() });
   assert.equal((await store.events(10))[0].name, "link_opened");
   assert.equal((await store.recentSessions(10)).length, 1);
+  // A whole day's list goes in batches (and re-saving it is harmless)
+  const many = Array.from({ length: 1200 }, (_, i) => ({ ...user, token: `bulk_${i}`, name: `U${i}` }));
+  await store.upsertUsers(many);
+  await store.upsertUsers(many);
+  assert.equal((await store.getUser("bulk_1199"))?.name, "U1199");
+  const { createSql } = await import("../src/db/client.ts");
+  const sql = createSql(url, { max: 1 });
+  const [{ n }] = await sql`select count(*)::int as n from fc_users where token like 'bulk_%'`;
+  assert.equal(n, 1200);
+  await sql.end();
 });
 
 test("every schema change has a migration (schema.ts and drizzle/ agree)", async () => {

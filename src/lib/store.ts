@@ -129,9 +129,12 @@ class PgStore implements Store {
     return (rows[0]?.data as UserInput) ?? null;
   }
   async upsertUsers(users: UserInput[]) {
-    for (const u of users)
-      await this.sql`insert into fc_users (token, data) values (${u.token}, ${this.sql.json(u as unknown as postgres.JSONValue)})
+    // In batches of 500: a day's list (~8k users) is ~16 statements, not 8k round trips.
+    for (let i = 0; i < users.length; i += 500) {
+      const batch = users.slice(i, i + 500).map((u) => ({ token: u.token, data: this.sql.json(u as unknown as postgres.JSONValue) }));
+      await this.sql`insert into fc_users ${this.sql(batch, "token", "data")}
         on conflict (token) do update set data = excluded.data`;
+    }
   }
   async testUsers() {
     const rows = await this.sql`select data from fc_users where token like 't\_team\_%' or token like 't\_demo\_%' order by token`;

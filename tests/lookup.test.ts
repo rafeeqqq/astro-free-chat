@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import { load } from "../src/engine/engine.ts";
 import type { UserInput } from "../src/engine/engine.ts";
 import type { Store } from "../src/lib/store.ts";
-import { lookupUser, resetLookupCache } from "../src/lib/lookup.ts";
-import { linkToken, istDay } from "../src/lib/sync.ts";
+import { lookupUser, resetLookupCache, listDay } from "../src/lib/lookup.ts";
+import { linkToken, resolveUserLink } from "../src/lib/sync.ts";
 
 const L = load();
 const secret = "s".repeat(20);
@@ -30,7 +30,7 @@ beforeEach(() => { resetLookupCache(); calls = 0; });
 test("a clicked user_id in the query gets a chat built on the spot, with the same token the daily sync would make", async () => {
   const { users, store } = memStore();
   const token = await lookupUser(L, store, "501", env);
-  assert.equal(token, linkToken(secret, "501", istDay()));
+  assert.equal(token, linkToken(secret, "501", listDay(L, new Date().toISOString())));
   const u = users.get(token!)!;
   assert.deepEqual([u.moon_sign, u.lagna, u.cohort], ["Tula", "Kanya", "rc1"]);
   assert.equal(await lookupUser(L, store, "999", env), null, "not in the query → no chat");
@@ -96,4 +96,34 @@ test("a fresh result (after today's 08:30) is never re-run; a missing user just 
   const { store } = memStore();
   assert.equal(await lookupUser(L, store, "999", { ...env, fetchFn: redash, now: ist("2026-10-06T15:00:00") }), null);
   assert.deepEqual(seen, ["GET"]);
+});
+
+test("each day's list is saved in full, so yesterday's link still opens tomorrow when the user has left the list", async () => {
+  const ist = (d: string) => Date.parse(`${d}+05:30`);
+  const oct6 = [
+    { rc_bucket: "RC1", user_id: 701, DOB: "2002-11-05", TOB: "03:10:00", POB: "Guntur, Andhra Pradesh, India" },
+    { rc_bucket: "RC1", user_id: 702, DOB: "1990-06-10", TOB: "05:30:00", POB: "Kanpur, Uttar Pradesh, India" },
+  ];
+  const oct7 = [{ rc_bucket: "RC2", user_id: 703, DOB: "1995-02-14", TOB: "16:40:00", POB: "Varanasi, Uttar Pradesh, India" }];
+  let stored = { at: ist("2026-10-06T08:40:00"), rows: oct6 };
+  const redash = (async () =>
+    new Response(JSON.stringify({ query_result: { retrieved_at: new Date(stored.at).toISOString(), data: { rows: stored.rows } } }))) as typeof fetch;
+  const { store, users } = memStore();
+  // Oct 6, 11:00: user 701 taps; the whole Oct 6 list gets saved (701 and 702), tagged 2026-10-06.
+  await lookupUser(L, store, "701", { ...env, fetchFn: redash, now: ist("2026-10-06T11:00:00") });
+  await new Promise((r) => setTimeout(r, 10)); // the list is saved in the background
+  assert.ok(users.has(linkToken(secret, "702", "2026-10-06")), "702 never tapped, but their Oct 6 chat is ready");
+  // Oct 7: the morning list no longer has 702. They tap yesterday's message → their Oct 6 chat opens.
+  resetLookupCache();
+  stored = { at: ist("2026-10-07T08:40:00"), rows: oct7 };
+  const getUser = async (t: string) => users.get(t) ?? null;
+  const now7 = ist("2026-10-07T12:00:00");
+  assert.equal(await resolveUserLink(getUser, secret, "702", null, { lookback_days: 2 }, now7), linkToken(secret, "702", "2026-10-06"));
+  assert.equal(await lookupUser(L, store, "703", { ...env, fetchFn: redash, now: now7 }), linkToken(secret, "703", "2026-10-07"), "Oct 7's new user");
+  assert.equal(await resolveUserLink(getUser, secret, "702", null, { lookback_days: 0 }, now7), null, "outside lookback_days → gone");
+});
+
+test("a list run before 08:30 still belongs to the previous day", () => {
+  assert.equal(listDay(L, new Date(Date.parse("2026-10-07T07:00:00+05:30")).toISOString()), "2026-10-06");
+  assert.equal(listDay(L, new Date(Date.parse("2026-10-07T08:45:00+05:30")).toISOString()), "2026-10-07");
 });
