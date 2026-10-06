@@ -173,6 +173,10 @@ cohorts:
   rc3: {}
   rc4: {}
   rc5_plus: {}
+  # Control groups (goodwill coins instead of free coins), kept separate so /admin can compare them with rc1–rc3
+  rc1_control: {}
+  rc2_control: {}
+  rc3_control: {}
 
 # Where today's users come from: the daily retargeting query in Redash (run by `npm run sync`, a daily Devtron cron).
 # Map each field to the query's column name. The kundli is computed from dob + tob + pob.
@@ -194,7 +198,8 @@ source:
     # last_summary: last_summary
     # wallet_balance: wallet_balance
     # holdout: holdout         # 1 = control group: never messaged, and their link never opens a chat
-  cohort_map: { RC1: rc1, RC2: rc2, RC3: rc3, RC4: rc4, "RC5+": rc5_plus }   # query value → our cohort (see cohorts)
+  # query value → our cohort (see cohorts). The *_CONTROL values appear if the query keeps the control label (rc1_control…)
+  cohort_map: { RC1: rc1, RC2: rc2, RC3: rc3, RC4: rc4, "RC5+": rc5_plus, RC1_CONTROL: rc1_control, RC2_CONTROL: rc2_control, RC3_CONTROL: rc3_control }
   lagna_needs_city: true      # a birth place matched only to its state gets a Moon chart instead of a guessed lagna
   links:
     user_id_pattern: "^[0-9]{1,15}$"   # what a valid user_id looks like; anything else gets the "link isn't working" page
