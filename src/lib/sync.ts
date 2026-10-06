@@ -21,7 +21,7 @@ export type SourceConfig = {
   };
   cohort_map?: Record<string, string>;   // their journey name → our cohort (see config.cohorts)
   links?: { user_id_pattern?: string; require_signature?: boolean; lookback_days?: number; one_chat_every_days?: number };
-  on_click?: { enabled?: boolean; cache_minutes?: number; refresh_if_older_hours?: number };
+  on_click?: { enabled?: boolean; cache_minutes?: number; list_ready_at?: string; wait_on_miss_seconds?: number };
   lagna_needs_city?: boolean;            // true: a place matched only to its state gets a Moon chart, not a guessed lagna
 };
 

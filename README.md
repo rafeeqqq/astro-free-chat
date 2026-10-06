@@ -8,7 +8,7 @@ A lapsed user taps a WhatsApp link → a 2-minute free chat with Astro Omkar (th
 WhatsApp link /u/{user_id} → their chat (looked up in the Redash query on the first click) → button → Astrolokal app
 ```
 The first click on a user's link finds them in query 20605's latest result (kept in memory 10 min) and builds their chat.
-Keep the query on a daily schedule in Redash. `npm run sync` (optional cron) pre-builds everyone's chat.
+If the stored result is from before 8:30 AM IST (the journeys run 8:00–8:30), the query is re-run (~30 s) and a user missing from the old result waits for it. A daily Redash schedule (just after 8:30) avoids that wait. `npm run sync` (optional cron) pre-builds everyone's chat.
 
 ## Change the experience
 

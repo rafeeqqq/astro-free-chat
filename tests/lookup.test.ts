@@ -57,3 +57,43 @@ test("switched off, or no Redash key → no lookup", async () => {
   assert.equal(await lookupUser(off, store, "501", env), null);
   assert.equal(calls, 0);
 });
+
+test("the list is due at 08:30 IST: before that, yesterday's 08:30 counts", async () => {
+  const { lastListReadyAt } = await import("../src/lib/lookup.ts");
+  const ist = (d: string) => Date.parse(`${d}+05:30`);
+  assert.equal(lastListReadyAt("08:30", ist("2026-10-06T09:00:00")), ist("2026-10-06T08:30:00"));
+  assert.equal(lastListReadyAt("08:30", ist("2026-10-06T07:00:00")), ist("2026-10-05T08:30:00"));
+});
+
+test("yesterday's stored result + a user added today: the query is re-run and the user gets their chat", async () => {
+  const ist = (d: string) => Date.parse(`${d}+05:30`);
+  const now = ist("2026-10-06T15:17:00");
+  const yesterday = [{ rc_bucket: "RC1", user_id: 601, DOB: "2002-11-05", TOB: "03:10:00", POB: "Guntur, Andhra Pradesh, India" }];
+  const today = [...yesterday, { rc_bucket: "RC2", user_id: 602, DOB: "1990-06-10", TOB: "05:30:00", POB: "Kanpur, Uttar Pradesh, India" }];
+  const seen: string[] = [];
+  const redash = (async (url: string, init?: RequestInit) => {
+    seen.push(`${init?.method ?? "GET"} ${new URL(url).pathname}`);
+    if (init?.method === "POST") return new Response(JSON.stringify({ query_result: { data: { rows: today } } })); // the re-run
+    return new Response(JSON.stringify({ query_result: { retrieved_at: new Date(ist("2026-10-05T13:43:00")).toISOString(), data: { rows: yesterday } } }));
+  }) as typeof fetch;
+  const { store, users } = memStore();
+  const e = { ...env, fetchFn: redash, now };
+  const token = await lookupUser(L, store, "602", e);
+  assert.ok(token, "found after the re-run");
+  assert.equal(users.get(token!)!.cohort, "rc2");
+  assert.deepEqual(seen, ["GET /api/queries/20605/results.json", "POST /api/queries/20605/results"], "one stored read, one re-run");
+  assert.ok(await lookupUser(L, store, "601", e));
+  assert.equal(seen.length, 2, "later clicks use the fresh result");
+});
+
+test("a fresh result (after today's 08:30) is never re-run; a missing user just gets the friendly page", async () => {
+  const ist = (d: string) => Date.parse(`${d}+05:30`);
+  const seen: string[] = [];
+  const redash = (async (url: string, init?: RequestInit) => {
+    seen.push(init?.method ?? "GET");
+    return new Response(JSON.stringify({ query_result: { retrieved_at: new Date(ist("2026-10-06T08:45:00")).toISOString(), data: { rows } } }));
+  }) as typeof fetch;
+  const { store } = memStore();
+  assert.equal(await lookupUser(L, store, "999", { ...env, fetchFn: redash, now: ist("2026-10-06T15:00:00") }), null);
+  assert.deepEqual(seen, ["GET"]);
+});

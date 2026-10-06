@@ -204,7 +204,8 @@ source:
   on_click:
     enabled: true                      # a link with no chat yet looks the user up in the query right away (needs REDASH_API_KEY)
     cache_minutes: 10                  # the query result is kept in memory this long (one Redash call per pod, not per click)
-    refresh_if_older_hours: 26         # if Redash's stored result is older, re-run the query in the background
+    list_ready_at: "08:30"             # IST: today's list exists after this (journeys run 8:00–8:30); an older stored result is re-run
+    wait_on_miss_seconds: 45           # a user missing from an old result waits up to this long for the re-run (it takes ~30 s)
 
 # Screen copy. The conversation (Omkar's lines, the hand-off card) is Hinglish; everything around it is English.
 # {name} {moon_sign} {mahadasha} {dob_label} {tob_label} {pob} {gender_label} are filled in.

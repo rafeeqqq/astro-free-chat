@@ -249,7 +249,8 @@ export function validateConfig(cfg: Config, template: string): string[] {
       need(typeof src.columns?.[k] === "string" && src.columns[k].trim(), `source.columns.${k} must name a column of the query`);
     const oc = src.on_click ?? {};
     need(oc.cache_minutes === undefined || (oc.cache_minutes >= 0 && oc.cache_minutes <= 240), "source.on_click.cache_minutes must be 0–240");
-    need(oc.refresh_if_older_hours === undefined || oc.refresh_if_older_hours > 0, "source.on_click.refresh_if_older_hours must be above 0");
+    need(oc.list_ready_at === undefined || /^([01]\d|2[0-3]):[0-5]\d$/.test(oc.list_ready_at), "source.on_click.list_ready_at must be a time like \"08:30\" (IST)");
+    need(oc.wait_on_miss_seconds === undefined || (oc.wait_on_miss_seconds >= 0 && oc.wait_on_miss_seconds <= 120), "source.on_click.wait_on_miss_seconds must be 0–120");
     const lk = src.links ?? {};
     if (lk.user_id_pattern !== undefined) { try { new RegExp(lk.user_id_pattern); } catch { e.push("source.links.user_id_pattern is not a valid regex"); } }
     need(lk.lookback_days === undefined || (Number.isInteger(lk.lookback_days) && lk.lookback_days >= 0 && lk.lookback_days <= 7), "source.links.lookback_days must be 0–7");
