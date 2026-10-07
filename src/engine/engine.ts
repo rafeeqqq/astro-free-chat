@@ -69,6 +69,7 @@ export type Config = {
   source?: import("../lib/sync.ts").SourceConfig;
   ui: Record<string, string>;
   card_text_by_topic?: Record<string, string>;
+  reply_instructions?: Partial<Record<"answer" | "start" | "engage" | "hook" | "quiet" | "ask_yes" | "ask_no", string>>;
 };
 
 export type Loaded = { cfg: Config; template: string; configHash: string };
@@ -242,6 +243,11 @@ export function validateConfig(cfg: Config, template: string): string[] {
     need(/^(https:\/\/|[a-z][a-z0-9+.-]*:\/\/)\S+$/i.test(cfg.handoff?.[k] ?? ""), `handoff.${k} must be an app link (astrolokal://…) or start with https://`);
   const appLink = [cfg.handoff?.deeplink_with_balance, cfg.handoff?.deeplink_no_balance].some((u) => u && !/^https:\/\//.test(u));
   need(!appLink || /^https:\/\//.test(cfg.handoff?.fallback_url ?? ""), "handoff.fallback_url (https://, e.g. the Play Store page) is needed with an app link");
+  for (const [k, v] of Object.entries(cfg.reply_instructions ?? {})) {
+    need(["answer", "start", "engage", "hook", "quiet", "ask_yes", "ask_no"].includes(k), `reply_instructions.${k} is not a known key`);
+    need(typeof v === "string" && v.trim().length > 10, `reply_instructions.${k} must be a sentence of instructions`);
+    for (const p of placeholders(v)) need(k === "start" && p === "topic", `reply_instructions.${k} uses unknown {${p}} (only "start" may use {topic})`);
+  }
   if (cfg.source) {
     const src = cfg.source;
     need(Number.isInteger(src.redash_query_id) && src.redash_query_id > 0, "source.redash_query_id must be the Redash query number");
@@ -422,7 +428,8 @@ const TEMPLATE_VARS = [
 ];
 
 // What this particular reply must do. The arc: answer their first question → keep them talking → one open thread.
-const STAGE = {
+// What each reply must do (config.yaml → reply_instructions). These defaults are used for any key left out.
+const STAGE_DEFAULTS = {
   answer:
     "This is their first question. ANSWER it, clearly and warmly, as if you can see it plainly. " +
     "Bubble 1 = the answer to THEIR question in their words (e.g. \"Naukri ke acche yog ban rahe hain.\"). " +
@@ -442,13 +449,13 @@ const STAGE = {
     "e.g. \"Aapke saatve ghar mein ek aur yog hai…\" or \"Partner ke baare mein ek khaas baat dikh rahi hai.\" " +
     "Don't explain it. If you already opened a thread, deepen that same one with one more tempting detail instead of a new one.",
   quiet: "They have gone quiet for a few seconds. Carry on by yourself, like an astrologer still reading their chart.",
+  ask_yes: "You may end with ONE short, personal question they'd enjoy answering.",
+  ask_no: "No question this time: end on a statement.",
 };
-const ASK = {
-  yes: "You may end with ONE short, personal question they'd enjoy answering.",
-  no: "No question this time: end on a statement.",
-};
+export type ReplyInstructions = typeof STAGE_DEFAULTS;
+const instr = (cfg: Config): ReplyInstructions => ({ ...STAGE_DEFAULTS, ...(cfg.reply_instructions ?? {}) });
 
-export type Stage = keyof typeof STAGE;
+export type Stage = "answer" | "start" | "engage" | "hook" | "quiet";
 export function stageFor(L: Loaded, st: SessionState, secondsLeft: number, quiet = false): Exclude<Stage, "quiet"> {
   if (quiet && !st.chartShown) return "start";
   if (!quiet && !st.answered) return "answer"; // their first question always gets the real answer, whenever it comes
@@ -464,10 +471,11 @@ export function buildSystemPrompt(
   const stage = stageFor(L, st, secondsLeft, quiet);
   const topicLabel = topic ? TOPIC_LABEL[topic] ?? topic : "their life right now";
   const canAsk = stage === "engage" && !st.lastAsked && st.questionsAsked < cfg.style.question_budget;
+  const I = instr(cfg);
   const thisReply = [
-    quiet ? STAGE.quiet : "",
-    stage === "start" ? STAGE.start.replace("{topic}", topicLabel) : STAGE[stage],
-    stage === "engage" ? (canAsk ? ASK.yes : ASK.no) : "",
+    quiet ? I.quiet : "",
+    stage === "start" ? I.start.replace("{topic}", topicLabel) : I[stage],
+    stage === "engage" ? (canAsk ? I.ask_yes : I.ask_no) : "",
   ].filter(Boolean).join(" ");
   const insight = render(cfg.insight_levels[ctx.insightLevel], {
     window_for_topic: (topic && ctx.user.windows?.[topic]) || "",

@@ -384,3 +384,13 @@ test("one question per reply at most", () => {
   assert.deepEqual(r.bubbles, ["Aapko kya lagta hai?", "Shani ka asar hai."]);
   assert.ok(r.flags.includes("dropped:second_question"));
 });
+
+test("reply instructions come from config.yaml and are checked", () => {
+  const { ctx, st } = fresh(rafeeq);
+  const c = clone(); c.reply_instructions = { ...c.reply_instructions, answer: "Answer in exactly one warm line about their question." };
+  assert.match(buildSystemPrompt({ ...L, cfg: c }, ctx, st, 2, 110), /Answer in exactly one warm line/);
+  const bad = clone(); bad.reply_instructions = { answer: "Use {name} here please, it is fine." , nonsense: "x".repeat(20) } as never;
+  const errs = validateConfig(bad, L.template).join(" | ");
+  assert.match(errs, /reply_instructions\.nonsense is not a known key/);
+  assert.match(errs, /reply_instructions\.answer uses unknown \{name\}/);
+});

@@ -4,7 +4,7 @@
 # Every chat is logged with prompt_version, cohort, arm and a hash of this file, so results stay traceable.
 #
 # Sections:  experiment · timing · pacing · model · persona · style · insight_levels · scripted · monthly_line
-#            topics · guardrails · handoff · assets · cohorts · source (daily users) · ui (every word on screen) · card_text_by_topic
+#            reply_instructions · topics · guardrails · handoff · assets · cohorts · source (daily users) · ui (every word on screen)
 # ─────────────────────────────────────────────────────────────────────────────
 
 experiment:
@@ -77,6 +77,39 @@ insight_levels:
     GIVE: a clear answer to their first question, and you may use the computed window {window_for_topic}
     if it is not empty. KEEP for later: the full picture, what is blocking it and the upay. Don't say
     you are keeping anything back.
+
+# What each AI reply must do. The app picks one per reply and adds it to the end of prompt_template.md ("THIS REPLY").
+reply_instructions:
+  # their first question (whenever it comes): a real answer
+  answer: >-
+    This is their first question. ANSWER it, clearly and warmly, as if you can see it plainly.
+    Bubble 1 = the answer to THEIR question in their words (e.g. "Naukri ke acche yog ban rahe hain.").
+    Bubble 2 = the planet or house behind it, in plain words. Don't just repeat their rashi, lagna or dasha: that was already said.
+    They should think "haan, yeh sach mein meri kundli dekh rahe hain". Answer the direction, not the exact timing. Don't ask anything yet.
+  # they haven't typed anything and went quiet: Omkar starts the reading ({topic} = their topic, or "their life right now")
+  start: >-
+    They haven't asked anything yet. Start the reading yourself, on {topic}: one warm, specific thing you see in their chart
+    and the planet behind it, so they feel seen and want to reply.
+  # the middle of the chat: keep them talking
+  engage: >-
+    Keep them talking and enjoying it. React to what they just said, in their words, then give ONE new small insight about them
+    or their question (their nature, what this phase feels like, a detail about the person or the work) that they'll want to answer.
+    Go a little deeper than before, never all the way. If they ask something NEW (where, who, when, how), don't answer it, not even roughly
+    (no place, direction, type of person or timing): say you can see it and it's interesting, then turn it back to them,
+    in your own words (these are only examples): E.g. "Haan, yeh kundli mein saaf dikh raha hai." || "Aapko khud kya lagta hai?"
+  # the last ~40 seconds (timing.pull_until_seconds_left): leave one open thread
+  hook: >-
+    Now leave them on ONE open thread. Name exactly what you have seen and not told yet, tied to their question, and stop there:
+    e.g. "Aapke saatve ghar mein ek aur yog hai…" or "Partner ke baare mein ek khaas baat dikh rahi hai."
+    Don't explain it. If you already opened a thread, deepen that same one with one more tempting detail instead of a new one.
+  # added when the user has gone quiet (timing.idle_nudge_seconds)
+  quiet: >-
+    They have gone quiet for a few seconds. Carry on by yourself, like an astrologer still reading their chart.
+  # added to "engage": whether this reply may ask a question (never two replies in a row, at most style.question_budget)
+  ask_yes: >-
+    You may end with ONE short, personal question they'd enjoy answering.
+  ask_no: >-
+    No question this time: end on a statement.
 
 # Lines the ENGINE sends word-for-word (no AI). Edit freely; {variables} are filled in.
 # Available: {name} {moon_sign} {mahadasha} {antardasha} {last_topic_label} {persona_name} {monthly_line}
