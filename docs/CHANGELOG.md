@@ -4,6 +4,7 @@ Every change to `config/` bumps `experiment.prompt_version`. `/admin` shows each
 
 | Version | Date | What changed |
 |---|---|---|
+| free_chat_v1.9 | 7 Oct 2026 | Offer copy: top strip "🎉 You've unlocked a special offer!", card "🎁 A special offer awaits you 👀" (was 100% cashback). Reply instructions moved into config.yaml |
 | free_chat_v1.8 | 30 Sep 2026 | Missing data never blocks a chat: no name → "Namaste ji" and "aap"; no gender/place → left out; no birth time → rashi/dasha only stated when certain (no kundli card if the rashi isn't). Prompt tightened (facts block built from known data only). One question per reply. Team form removed |
 | free_chat_v1.7 | 29 Sep 2026 | The first answer always answers the question (answer + the planet behind it). Wrong-dasha guard catches every phrasing, and mahadasha vs antardasha mix-ups |
 | free_chat_v1.6 | 29 Sep 2026 | CTA "Talk to astrologer": the tap connects to a different, human astrologer, so no "continue" |

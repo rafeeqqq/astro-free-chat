@@ -9,7 +9,7 @@
 
 experiment:
   id: astro_free_chat_pilot_v1
-  prompt_version: free_chat_v1.8   # bump on every change; history in docs/CHANGELOG.md
+  prompt_version: free_chat_v1.9   # bump on every change; history in docs/CHANGELOG.md
   # The pilot cohort is FIXED and everyone in it gets the same experience (one arm, weight 100).
   # The control is the holdout, which never gets the WATI message (split when the list is built).
   # To try something new: change the settings below, bump prompt_version, and compare versions over time.
@@ -263,7 +263,7 @@ ui:
   # header, banner, timer
   day_chip: "Today"
   strip_during: "🎁 Finish this chat to unlock a surprise gift"
-  strip_reveal: "🎉 You've won 100% cashback!"
+  strip_reveal: "🎉 You've unlocked a special offer!"
   time_up: "Time's up"
   time_up_status: "Chat has ended"
   status_online: "Online"
@@ -271,7 +271,7 @@ ui:
   strip_cta: "Claim"
   # hand-off sheet (the CTA)
   card_text: "{name} ji, aapki kundli ki sabse zaroori baat abhi batani baaki hai 👀"   # the hook above the CTA: an open loop, personal, no fear
-  card_offer: "100% cashback on your first recharge"
+  card_offer: "A special offer awaits you 👀"     # shown with 🎁 in front, under the hook
   cta_label: "Talk to astrologer"
   cta_subtext: "Talk to our top astrologers"   # under the CTA, with verified ticks
   # input
