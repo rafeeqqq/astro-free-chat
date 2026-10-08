@@ -288,14 +288,14 @@ test("Omkar never repeats a line he already said (case and punctuation ignored)"
 
 test("each reply has a job: answer the first question, then engage, then one open thread", () => {
   const { ctx, st } = fresh(rafeeq);
-  assert.match(buildSystemPrompt(L, ctx, st, 2, 110), /first question\. ANSWER it/);
+  assert.match(buildSystemPrompt(L, ctx, st, 2, 110), /This is their first message\./);
   const shown = { ...st, chartShown: true, answered: true };
   assert.match(buildSystemPrompt(L, ctx, shown, 3, 90), /Keep them talking[\s\S]*ONE short, personal question/);
   assert.match(buildSystemPrompt(L, ctx, { ...shown, lastAsked: true }, 3, 90), /No question this time/, "never two questions in a row");
   assert.match(buildSystemPrompt(L, ctx, { ...shown, questionsAsked: L.cfg.style.question_budget }, 3, 90), /No question this time/);
   assert.match(buildSystemPrompt(L, ctx, shown, 3, 30), /ONE open thread/);
-  assert.match(buildSystemPrompt(L, ctx, st, 2, 90, true), /gone quiet[\s\S]*Start the reading yourself/);
-  assert.match(buildSystemPrompt(L, ctx, { ...shown, answered: false }, 3, 90), /first question\. ANSWER it/,
+  assert.match(buildSystemPrompt(L, ctx, st, 2, 90, true), /gone quiet[\s\S]*Carry on by yourself/);
+  assert.match(buildSystemPrompt(L, ctx, { ...shown, answered: false }, 3, 90), /This is their first message\./,
     "if Omkar opened the chart himself, their first question still gets the real answer");
 });
 

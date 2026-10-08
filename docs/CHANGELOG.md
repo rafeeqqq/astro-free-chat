@@ -4,6 +4,7 @@ Every change to `config/` bumps `experiment.prompt_version`. `/admin` shows each
 
 | Version | Date | What changed |
 |---|---|---|
+| free_chat_v2.0 | 8 Oct 2026 | Prompt from 377 real chats: answer "kab" with a chart window (not a dodge), hook on THEIR topic, reply in the user's language, greetings get a greeting, opening offers topics, no copied example lines, stricter "zaroor …" guard |
 | free_chat_v1.9 | 7 Oct 2026 | Offer copy: top strip "🎉 You've unlocked a special offer!", card "🎁 A special offer awaits you 👀" (was 100% cashback). Reply instructions moved into config.yaml |
 | free_chat_v1.8 | 30 Sep 2026 | Missing data never blocks a chat: no name → "Namaste ji" and "aap"; no gender/place → left out; no birth time → rashi/dasha only stated when certain (no kundli card if the rashi isn't). Prompt tightened (facts block built from known data only). One question per reply. Team form removed |
 | free_chat_v1.7 | 29 Sep 2026 | The first answer always answers the question (answer + the planet behind it). Wrong-dasha guard catches every phrasing, and mahadasha vs antardasha mix-ups |
