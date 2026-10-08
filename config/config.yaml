@@ -9,7 +9,7 @@
 
 experiment:
   id: astro_free_chat_pilot_v1
-  prompt_version: free_chat_v2.1   # bump on every change; history in docs/CHANGELOG.md
+  prompt_version: free_chat_v2.2   # bump on every change; history in docs/CHANGELOG.md
   # The pilot cohort is FIXED and everyone in it gets the same experience (one arm, weight 100).
   # The control is the holdout, which never gets the WATI message (split when the list is built).
   # To try something new: change the settings below, bump prompt_version, and compare versions over time.
@@ -83,7 +83,7 @@ reply_instructions:
   # their first message: a greeting gets a greeting back; a question gets a real answer
   answer: >-
     This is their first message. If it is only a greeting (hi, hello, namaste, radhe radhe) or only names a language,
-    greet them back warmly in that language and ask in one line what they want to know: shaadi, naukri, paisa ya sehat.
+    greet them back warmly in that language and ask in one line what they want to know: shaadi, naukri, paisa ya pyaar.
     Otherwise ANSWER their question clearly and warmly, as if you can see it plainly. First bubble: the answer to THEIR
     question, in their own words. Second bubble: the planet behind it, in plain words. If they asked WHEN, answer with a
     phase, not a date: e.g. that it opens up once their current antardasha (the one in ABOUT THEM) changes, or that it is
@@ -91,7 +91,7 @@ reply_instructions:
     ("yog ban raha hai", "sambhavna achhi hai"). Don't repeat the rashi/dasha line already sent. Don't ask anything yet.
   # they haven't typed anything and went quiet: Omkar starts ({topic} = their topic, or "their life right now")
   start: >-
-    They haven't asked anything yet. Ask warmly, in one line, what they'd like to know (shaadi, naukri, paisa ya sehat),
+    They haven't asked anything yet. Ask warmly, in one line, what they'd like to know (shaadi, naukri, paisa ya pyaar),
     and add one specific thing you notice in their chart about {topic}, so they want to reply.
   # the middle of the chat: keep them talking, never dodge
   engage: >-
@@ -112,7 +112,7 @@ reply_instructions:
   # added when the user has gone quiet (timing.idle_nudge_seconds)
   quiet: >-
     They have gone quiet. Carry on by yourself, like an astrologer still reading their chart: one short, specific
-    observation about their topic. If they haven't named a topic yet, ask in one line: shaadi, naukri, paisa ya sehat?
+    observation about their topic. If they haven't named a topic yet, ask in one line: shaadi, naukri, paisa ya pyaar?
   # added to "engage": whether this reply may ask a question (never two replies in a row, at most style.question_budget)
   ask_yes: >-
     You may end with ONE short, personal question they'd enjoy answering.
@@ -132,7 +132,7 @@ scripted:
     paisa: "Paise ke baare mein jaanna hai?"
     parivaar: "Parivaar ke baare mein jaanna hai?"
     pyaar: "Pyaar ke baare mein jaanna hai?"
-    default: "Shaadi, naukri, paisa ya sehat — kis baare mein jaanna hai?"
+    default: "Shaadi, naukri, paisa ya pyaar — kis baare mein jaanna hai?"
   # First answer = chart_intro → kundli card → chart_line → 1 answer. chart_intro "" = skip it.
   chart_intro: "Aapki kundli dekh raha hoon…"
   chart_line: "Rashi {moon_sign}, dasha {mahadasha} ki."
