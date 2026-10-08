@@ -4,6 +4,7 @@ Every change to `config/` bumps `experiment.prompt_version`. `/admin` shows each
 
 | Version | Date | What changed |
 |---|---|---|
+| free_chat_v2.4 | 8 Oct 2026 | "typing…" lasts longer before each bubble, like a person typing: typing_min 800→1500 ms, per_char 25→35, max 2400→3000 (a 7-word bubble ≈ 2.5 s, was ≈ 1.5 s) |
 | free_chat_v2.3 | 8 Oct 2026 | Kundli card arrives a little later (pacing.kundli_ms 2600 → 4000), so it feels like Omkar is preparing and sending it. Flow unchanged |
 | free_chat_v2.2 | 8 Oct 2026 | Opening offers "shaadi, naukri, paisa ya pyaar" (not "sehat": a health question gets the scripted doctor line, with no kundli and no reading) |
 | free_chat_v2.1 | 8 Oct 2026 | Slower replies (~1.3×): read_delay 600→1000 ms, typing_max 1800→2400 ms. Prompt unchanged from v2.0 |
