@@ -9,7 +9,7 @@
 
 experiment:
   id: astro_free_chat_pilot_v1
-  prompt_version: free_chat_v2.0   # bump on every change; history in docs/CHANGELOG.md
+  prompt_version: free_chat_v2.1   # bump on every change; history in docs/CHANGELOG.md
   # The pilot cohort is FIXED and everyone in it gets the same experience (one arm, weight 100).
   # The control is the holdout, which never gets the WATI message (split when the list is built).
   # To try something new: change the settings below, bump prompt_version, and compare versions over time.
@@ -33,10 +33,10 @@ timing:
 # How messages arrive on screen (milliseconds). Typing time grows with message length, like a real person,
 # within typing_min_ms..typing_max_ms. The first message always gets its full typing time, however fast the model replies.
 pacing:
-  read_delay_ms: 600          # pause after the user sends, before "typing…" appears
+  read_delay_ms: 1000          # pause after the user sends, before "typing…" appears
   typing_min_ms: 800          # shortest "typing…" before a message
   typing_ms_per_char: 25      # extra typing time per character
-  typing_max_ms: 1800         # longest "typing…" before a message
+  typing_max_ms: 2400         # longest "typing…" before a message
   between_messages_ms: 350    # gap after each message before the next "typing…"
   system_note_ms: 1100        # how long "Connecting you to…" / "has joined" each hold
   kundli_ms: 2600             # "typing…" after "Aapki kundli dekh raha hoon…", before the kundli card appears
