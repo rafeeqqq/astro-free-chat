@@ -6,7 +6,7 @@
 //   - otherwise → Moon chart (no lagna); and if without a birth time the rashi/dasha could differ that day, it isn't stated
 // The link token comes from the query's token column (so the WATI link and our store always agree); if the query has
 // no token column, one is made here from user_id + TOKEN_SECRET + the send day, and written to the WATI file.
-// The raw user_id is never put in a link and never stored with the chat.
+// The user_id is stored with the user (for joining chats with purchases) but never shown on screen or put in a chat URL.
 
 import { createHash } from "node:crypto";
 import { computeChart } from "./chart.ts";
@@ -177,6 +177,7 @@ export function rowsToUsers(
       place: hasLatLon ? "lat/lon" : found?.matched ?? "not found",
       user: {
         token,
+        user_id: userId,
         name,
         gender: /^f/i.test(str(r[c.gender])) ? "female" : /^m/i.test(str(r[c.gender])) ? "male" : null,
         dob, tob: tob || null, pob: pobText || null,

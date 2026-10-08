@@ -13,6 +13,7 @@ import { parse } from "yaml";
 
 export type UserInput = {
   token: string;              // opaque per-user code from the WATI link (never a phone number)
+  user_id?: string | null;    // Astrolokal user id, kept so chats can be joined with purchases (never shown or put in a URL)
   name: string;
   gender?: string | null;
   dob: string;                // YYYY-MM-DD

@@ -19,7 +19,8 @@
     "prodcheck": "node --env-file-if-exists=.env.local scripts/cli.ts prodcheck",
     "sync": "node --env-file-if-exists=.env.local scripts/sync.ts",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "node scripts/migrate.ts"
+    "db:migrate": "node scripts/migrate.ts",
+    "backfill:user-ids": "node --env-file-if-exists=.env.local scripts/backfill-user-ids.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.79",

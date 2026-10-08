@@ -235,3 +235,9 @@ test("quiet at the end after an open thread: the chat just closes, no second hoo
   assert.equal(r.messages.length, 0);
   assert.equal(r.view.closed, true);
 });
+
+test("the user_id never reaches the browser", async () => {
+  await getStore().upsertUsers([{ ...user("u_uid_001"), user_id: "424242" }]);
+  const v = await chat.startOrResume("u_uid_001");
+  assert.ok(!JSON.stringify(v).includes("424242"));
+});

@@ -30,7 +30,8 @@ test("a query row becomes a chat user with their own kundli", () => {
   assert.equal(u.cohort, "lapsed");
   assert.equal(u.name, "Rohan Mehta");
   assert.equal(users[0].place, "Guntur");
-  assert.ok(!JSON.stringify(u).includes('"101"'), "the user_id is never stored with the chat");
+  assert.equal(u.user_id, "101", "kept with the user, so chats can be joined with purchases");
+  assert.ok(!u.token.includes("101"), "but never part of the chat address");
 });
 
 test("no token column → a stable, unguessable token per user and day", () => {
