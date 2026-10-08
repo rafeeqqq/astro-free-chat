@@ -4,6 +4,7 @@ Every change to `config/` bumps `experiment.prompt_version`. `/admin` shows each
 
 | Version | Date | What changed |
 |---|---|---|
+| free_chat_v2.3 | 8 Oct 2026 | Kundli card arrives a little later (pacing.kundli_ms 2600 → 4000), so it feels like Omkar is preparing and sending it. Flow unchanged |
 | free_chat_v2.2 | 8 Oct 2026 | Opening offers "shaadi, naukri, paisa ya pyaar" (not "sehat": a health question gets the scripted doctor line, with no kundli and no reading) |
 | free_chat_v2.1 | 8 Oct 2026 | Slower replies (~1.3×): read_delay 600→1000 ms, typing_max 1800→2400 ms. Prompt unchanged from v2.0 |
 | free_chat_v2.0 | 8 Oct 2026 | Prompt from 377 real chats: answer "kab" with a chart window (not a dodge), hook on THEIR topic, reply in the user's language, greetings get a greeting, opening offers topics, no copied example lines, stricter "zaroor …" guard |

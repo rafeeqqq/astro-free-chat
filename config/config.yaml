@@ -9,7 +9,7 @@
 
 experiment:
   id: astro_free_chat_pilot_v1
-  prompt_version: free_chat_v2.2   # bump on every change; history in docs/CHANGELOG.md
+  prompt_version: free_chat_v2.3   # bump on every change; history in docs/CHANGELOG.md
   # The pilot cohort is FIXED and everyone in it gets the same experience (one arm, weight 100).
   # The control is the holdout, which never gets the WATI message (split when the list is built).
   # To try something new: change the settings below, bump prompt_version, and compare versions over time.
@@ -39,7 +39,7 @@ pacing:
   typing_max_ms: 2400         # longest "typing…" before a message
   between_messages_ms: 350    # gap after each message before the next "typing…"
   system_note_ms: 1100        # how long "Connecting you to…" / "has joined" each hold
-  kundli_ms: 2600             # "typing…" after "Aapki kundli dekh raha hoon…", before the kundli card appears
+  kundli_ms: 4000             # "typing…" after "Aapki kundli dekh raha hoon…", before the kundli card appears
 
 # Google Gemini, called directly with GEMINI_API_KEY (see .env.example).
 model:

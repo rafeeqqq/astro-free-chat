@@ -69,6 +69,21 @@ test("first answer = intro + kundli + chart line + 1 reply; later answers = 3 re
   assert.equal(empty.ok, false);
 });
 
+test("the kundli card always comes with the first answer, whatever the user picks from the opening question", async () => {
+  const cfg = parse(readFileSync("config/config.yaml", "utf8"));
+  const opening: string = cfg.scripted.topic_hook.default;
+  const sehat: string[] = cfg.guardrails.topics?.sehat ?? cfg.topics?.sehat ?? [];
+  for (const w of sehat) assert.ok(!new RegExp(`\\b${w}\\b`, "i").test(opening), `the opening must not offer "${w}": a health question gets the doctor line and no kundli`);
+  const replies = ["shaadi", "naukri", "paisa", "pyaar", "hi", "hello", "shaadi kab hogi?"];
+  await getStore().upsertUsers(replies.map((_, i) => user(`u_kundli_${i}`)));
+  for (const [i, text] of replies.entries()) {
+    await chat.startOrResume(`u_kundli_${i}`);
+    const r = await chat.sendMessage(`u_kundli_${i}`, text);
+    assert.ok(r.ok);
+    assert.deepEqual(r.messages.slice(0, 3).map((m) => m.role), ["ai", "kundli", "ai"], `"${text}" → kundli dekh raha hoon, card, chart line`);
+  }
+});
+
 test("distress → helpline, chat closed, no sales card, nothing more accepted", async () => {
   await chat.startOrResume("u_crisis_01");
   const r = await chat.sendMessage("u_crisis_01", "ab jeene ka mann nahi karta");
