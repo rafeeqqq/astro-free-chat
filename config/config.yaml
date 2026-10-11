@@ -9,7 +9,7 @@
 
 experiment:
   id: astro_free_chat_pilot_v1
-  prompt_version: free_chat_v2.4   # bump on every change; history in docs/CHANGELOG.md
+  prompt_version: free_chat_v2.5   # bump on every change; history in docs/CHANGELOG.md
   # The pilot cohort is FIXED and everyone in it gets the same experience (one arm, weight 100).
   # The control is the holdout, which never gets the WATI message (split when the list is built).
   # To try something new: change the settings below, bump prompt_version, and compare versions over time.
@@ -91,8 +91,8 @@ reply_instructions:
     ("yog ban raha hai", "sambhavna achhi hai"). Don't repeat the rashi/dasha line already sent. Don't ask anything yet.
   # they haven't typed anything and went quiet: Omkar starts ({topic} = their topic, or "their life right now")
   start: >-
-    They haven't asked anything yet. Ask warmly, in one line, what they'd like to know (shaadi, naukri, paisa ya pyaar),
-    and add one specific thing you notice in their chart about {topic}, so they want to reply.
+    They haven't asked anything yet. Start the reading yourself, on {topic}: one warm, specific thing you see in their chart
+    and the planet behind it, so they feel seen and want to reply.
   # the middle of the chat: keep them talking, never dodge
   engage: >-
     Keep them talking and enjoying it. React to what they just said, in their own words, then give ONE new, specific
@@ -112,7 +112,7 @@ reply_instructions:
   # added when the user has gone quiet (timing.idle_nudge_seconds)
   quiet: >-
     They have gone quiet. Carry on by yourself, like an astrologer still reading their chart: one short, specific
-    observation about their topic. If they haven't named a topic yet, ask in one line: shaadi, naukri, paisa ya pyaar?
+    observation about their topic.
   # added to "engage": whether this reply may ask a question (never two replies in a row, at most style.question_budget)
   ask_yes: >-
     You may end with ONE short, personal question they'd enjoy answering.
@@ -291,5 +291,10 @@ ui:
   invalid_text: "You can talk to an astrologer directly in the Astrolokal app"
 
 # Optional: a different hook per topic the user talked about, e.g. `shaadi: "{name} ji, aapki shaadi ka…"`.
-# Empty = everyone sees ui.card_text (current choice: one generic hook, to find the best-converting line first).
-card_text_by_topic: {}
+# The card names the topic they talked about; no topic → ui.card_text (the generic hook).
+card_text_by_topic:
+  shaadi: "{name} ji, aapki shaadi ki sahi timing abhi batani baaki hai 👀"
+  naukri: "{name} ji, aapki naukri ka sahi samay abhi batana baaki hai 👀"
+  paisa: "{name} ji, paisa kab aur kaise aayega, yeh abhi batana baaki hai 👀"
+  pyaar: "{name} ji, aapke pyaar ka asli jawab abhi batana baaki hai 👀"
+  parivaar: "{name} ji, parivaar ki uljhan ka hal abhi batana baaki hai 👀"

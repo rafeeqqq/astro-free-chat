@@ -315,8 +315,10 @@ test("the AI never points away from the chat (pandit ji, next time)", () => {
   assert.equal(g("Baaki baad mein bataunga.").bubbles.length, 0);
 });
 
-test("the hand-off card uses the generic hook; per-topic hooks stay optional", () => {
-  assert.match(cardText(L.cfg, fresh(rafeeq).ctx, "shaadi"), /Rohan ji, aapki kundli ki sabse zaroori baat abhi batani baaki hai/);
+test("the hand-off card names their topic; no topic or health → the generic hook", () => {
+  assert.match(cardText(L.cfg, fresh(rafeeq).ctx, "shaadi"), /Rohan ji, aapki shaadi ki sahi timing abhi batani baaki hai/);
+  assert.match(cardText(L.cfg, fresh(rafeeq).ctx, "naukri"), /Rohan ji, aapki naukri ka sahi samay abhi batana baaki hai/);
+  for (const t of [null, "sehat"]) assert.match(cardText(L.cfg, fresh(rafeeq).ctx, t), /Rohan ji, aapki kundli ki sabse zaroori baat abhi batani baaki hai/);
   const t = clone(); t.card_text_by_topic = { shaadi: "{name} ji, shaadi" };
   assert.equal(cardText(t, fresh(rafeeq).ctx, "shaadi"), "Rohan ji, shaadi");
   const c = clone(); c.card_text_by_topic = { cricket: "x" };

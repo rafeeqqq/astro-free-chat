@@ -4,6 +4,7 @@ Every change to `config/` bumps `experiment.prompt_version`. `/admin` shows each
 
 | Version | Date | What changed |
 |---|---|---|
+| free_chat_v2.5 | 11 Oct 2026 | Silent users: Omkar starts the reading himself again (v1.9 wording; v2.4 re-asked the topic, silent tap 35% → 12%). Card names the topic they talked about (shaadi/naukri/paisa/pyaar/parivaar); no topic → generic line. Nothing else changed |
 | free_chat_v2.4 | 8 Oct 2026 | "typing…" lasts longer before each bubble, like a person typing: typing_min 800→1500 ms, per_char 25→35, max 2400→3000 (a 7-word bubble ≈ 2.5 s, was ≈ 1.5 s) |
 | free_chat_v2.3 | 8 Oct 2026 | Kundli card arrives a little later (pacing.kundli_ms 2600 → 4000), so it feels like Omkar is preparing and sending it. Flow unchanged |
 | free_chat_v2.2 | 8 Oct 2026 | Opening offers "shaadi, naukri, paisa ya pyaar" (not "sehat": a health question gets the scripted doctor line, with no kundli and no reading) |

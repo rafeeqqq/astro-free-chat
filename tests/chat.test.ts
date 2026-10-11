@@ -42,7 +42,7 @@ test("first open: details → Omkar joins → 3-line greeting; no kundli yet; re
   assert.equal(v.chart?.kundli?.basis, "lagna");
   assert.deepEqual(v.chart?.kundli?.houses[0].items, ["Asc", "Ma 19.0°"]);
   assert.equal(v.ui.cta_label, "Talk to astrologer");
-  assert.match(v.ui.card_text, /Rohan ji, aapki kundli ki sabse zaroori baat abhi batani baaki hai/, "one generic hook above the CTA");
+  assert.match(v.ui.card_text, /Rohan ji, aapki shaadi ki sahi timing abhi batani baaki hai/, "the card names their topic (last chat: shaadi)");
   const again = await chat.startOrResume("u_open_001");
   assert.equal(again.messages.length, v.messages.length);
   assert.equal((await getStore().getSession("u_open_001"))?.messages.length, 6);
@@ -183,12 +183,13 @@ test("clock_starts: first_message still works if switched back in config", async
   assert.equal(L.cfg.timing.clock_starts, "open");
 });
 
-test("the card keeps the same generic hook whatever the topic", async () => {
+test("the card names the topic they talk about; no topic yet → the generic hook", async () => {
   await getStore().upsertUsers([{ ...user("u_card_001"), last_topic: null }]);
   const v = await chat.startOrResume("u_card_001");
+  assert.match(v.ui.card_text, /aapki kundli ki sabse zaroori baat abhi batani baaki hai/, "nothing said yet → generic");
   const r = await chat.sendMessage("u_card_001", "meri naukri kab lagegi?");
   assert.ok(r.ok);
-  assert.equal(r.view.ui.card_text, v.ui.card_text);
+  assert.match(r.view.ui.card_text, /aapki naukri ka sahi samay abhi batana baaki hai/, "asked about naukri → naukri card");
 });
 
 test("admin can only ever reset internal test links, never a real user", async () => {
