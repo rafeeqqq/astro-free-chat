@@ -27,6 +27,8 @@ COPY --from=build --chown=node:node /app/config ./config
 COPY --from=build --chown=node:node /app/src ./src
 COPY --from=build --chown=node:node /app/scripts ./scripts
 COPY --from=build --chown=node:node /app/drizzle ./drizzle
+# Fake demo users only, for `node scripts/cli.ts seed` (test links t_demo_*). Never real data.
+COPY --from=build --chown=node:node /app/samples/users.yaml ./samples/users.yaml
 COPY --from=build --chown=node:node /app/next.config.ts /app/tsconfig.json ./
 # The daily sync writes its report to out/ (the app user must own it)
 RUN mkdir -p /app/out && chown node:node /app/out

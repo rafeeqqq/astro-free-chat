@@ -7,7 +7,6 @@ out
 !.env.example
 tests
 docs
-samples
 *.tsbuildinfo
 .DS_Store
 .claude
